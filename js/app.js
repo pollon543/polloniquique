@@ -1,0 +1,1452 @@
+/* =========================================================
+   Pollería El Pollón - app.js (ACTUALIZADO PRO)
+   - Carousel fade pro
+   - Catbar con flechas izq/der en móvil
+   - Bolsa: familiares por unidad; otras categorías 1 bolsa por cada 3 unidades
+   - Checkout con comentario + salto automático 25 caracteres por línea
+   - Ticket WhatsApp + ticket impresión 80mm
+========================================================= */
+
+const CURRENCY = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+const BAG_PRICE = 200;
+const WHATSAPP_NUMBER = '56986925310';
+const ORDERS_PATH = 'pollon_orders_v1';
+const ORDERS_KEY = 'pollon_orders_local_v1';
+
+let db = null;
+let ordersRef = null;
+let firestoreReady = false;
+
+/* ✅ fallback seguro (evita crash si Firestore llama antes que admin.js) */
+function isAdminOpen(){
+  return document.getElementById('admin-panel-modal')?.classList.contains('active');
+}
+window.isAdminOpen = window.isAdminOpen || isAdminOpen;
+
+function initOrdersBackend(){
+  try{
+    const firebaseConfig = {
+    apiKey: "AIzaSyAWv3zPEUU82YcLSwOxsv-MQZP2ZjcycOg",
+    authDomain: "elpollon01-307da.firebaseapp.com",
+    databaseURL: "https://elpollon01-307da-default-rtdb.firebaseio.com",
+    projectId: "elpollon01-307da",
+    storageBucket: "elpollon01-307da.firebasestorage.app",
+    messagingSenderId: "1024156951564",
+    appId: "1:1024156951564:web:946a9b6003d8dff1053a29"
+  };
+
+    const looksPlaceholder = Object.values(firebaseConfig).some(v => String(v).includes("REEMPLAZA"));
+    if(looksPlaceholder){
+      console.warn('[Firebase] Config placeholder: usando localStorage.');
+      firestoreReady = false;
+      return;
+    }
+
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    ordersRef = db.collection(ORDERS_PATH);
+    firestoreReady = true;
+
+    ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
+      orders = [];
+      snap.forEach(doc => orders.push(doc.data()));
+      orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
+
+      if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
+        if (typeof window.renderAdmin === 'function') window.renderAdmin();
+      }
+    });
+
+  }catch(err){
+    console.warn('[Firebase] Falló init, usando localStorage:', err);
+    firestoreReady = false;
+  }
+}
+
+/* Orders storage */
+let orders = [];
+
+function saveOrders(){
+  if(firestoreReady && ordersRef){
+    const batch = db.batch();
+    orders.forEach(o=>{
+      const docRef = ordersRef.doc(o.id);
+      batch.set(docRef, o, { merge:true });
+    });
+    batch.commit().catch(e=>{
+      console.warn('[Firebase] batch commit error, fallback local:', e);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    });
+  }else{
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  }
+}
+
+function loadOrders(){
+  if(firestoreReady) return;
+  try{
+    const raw = localStorage.getItem(ORDERS_KEY);
+    orders = raw ? JSON.parse(raw) : [];
+  }catch{
+    orders = [];
+  }
+}
+
+/* =========================
+   Productos
+========================= */
+const PRODUCTS = {
+  "ofertas-familiares":[
+    { name:"Ofertón más chaufa", price:24500, img:"img/oferton mas chaufa.png", desc:"Pollo entero, papas fritas, arroz chaufa, ensalada y bebidas 1.5lt." },
+    { name:"Ofertón más fideo", price:24500, img:"img/oferton mas fideo.png", desc:"Pollo entero, papas fritas, fideos al pesto, ensalada y bebidas 1.5lt." },
+    { name:"Ofertón más chaufa pura papa", price:24500, img:"img/oferton mas chaufa pura papa.png", desc:"Pollo entero, papas, extra papa, chaufa y bebidas 1.5lt." },
+    { name:"Ofertón con fideo", price:23500, img:"img/oferton con fideo.png", desc:"Pollo entero, papas, fideos al pesto y bebidas 1.5lt" },
+    { name:"Ofertón sin ensalada", price:23500, img:"img/oferton sin ensalada.png", desc:"Pollo entero, papas, chaufa y bebidas 1.5lt" },
+    { name:"Ofertón pura papa", price:23500, img:"img/oferton pura papa.png", desc:"Pollo entero, papas + 1/2 porción papa y bebidas" },
+    { name:"Ofertón familiar", price:22500, img:"img/oferton familiar.png", desc:"Pollo entero, papas, ensalada y bebidas 1.5lt" },
+    { name:"Mega Familiar", price:22500, img:"img/oferton familiar.png", desc:"Pollo entero, papas, ensalada y bebidas 1.5lt" },
+  ],
+  "ofertas-dos":[
+    { name:"1/2 combo chaufa", price:15600, img:"img/medio combo chaufa.png", desc:"Medio pollo + papas + chaufa" },
+    { name:"1/2 combo", price:15100, img:"img/medio combo.png", desc:"Medio pollo + papas + ensalada personal" },
+    { name:"1/2 combo pura papa", price:15100, img:"img/medio combo pura papa.png", desc:"Medio pollo + más papas" },
+  ],
+  "ofertas-personales":[
+    { name:"1/4 combo", price:8100, img:"img/personal combo.png", desc:"1/4 pollo + papas personales + ensalada" },
+    { name:"1/4 combo pura papa", price:8100, img:"img/personal combo pura papa.png", desc:"1/4 pollo + más papas" },
+    { name:"Chaufa brasa", price:8200, img:"img/chaufa brasa.png", desc:"1/4 pollo + chaufa" },
+    { name:"Fideo al pesto con 1/4", price:8100, img:"img/fideo al pesto con 1-4.png", desc:"1/4 pollo + fideos al pesto" },
+    { name:"Chaufa brasa con papas", price:9200, img:"img/chaufa brasa con papas fritas.png", desc:"1/4 pollo + chaufa + papas" },
+    { name:"1/4 pollo con fideo y papa", price:9300, img:"img/personal con papa y fideo.png", desc:"1/4 pollo + fideo + papas" },
+  ],
+  "platos-extras":[
+    { name:"Lomo saltado de carne con chaufa", price:12200, img:"img/lomo saltado con arroz chaufa.png", desc:"Plato extra con chaufa" },
+    { name:"Lomo saltado de carne con arroz blanco", price:11700, img:"img/lomo saltado de carne con arroz blanco.png", desc:"Plato extra con arroz blanco" },
+    { name:"Lomo saltado de pollo con arroz blanco", price:11700, img:"img/lomo saltado de pollo con arroz blanco.png", desc:"Plato extra con arroz blanco" },
+    { name:"Tallarín saltado", price:11700, img:"img/tallarin saltado de carne.png", desc:"Tallarín saltado de carne" },
+    { name:"Bistec a lo pobre", price:10700, img:"img/bistec a lo pobre.png", desc:"Bistec a lo pobre" },
+    { name:"Bistec con fideos al pesto", price:10700, img:"img/bistec con fideos al pesto.png", desc:"Bistec + fideos al pesto" },
+    { name:"Chuleta de cerdo", price:10700, img:"img/chuleta de cerdo.png", desc:"Chuleta de cerdo" },
+    { name:"Pechuga a la plancha", price:10200, img:"img/pechuga a la plancha.png", desc:"Pechuga a la plancha" },
+    { name:"Combo nuggets", price:6700, img:"img/combo nuggets.png", desc:"Combo nuggets" },
+    { name:"Salchipapas", price:6700, img:"img/salchipapas.png", desc:"Salchipapas" },
+  ],
+  "agregados":[
+    { name:"1 Pollo entero solo", price:15000, img:"img/1 pollo solo.png", desc:"Solo pollo" },
+    { name:"1/2 Pollo solo", price:9900, img:"img/medio pollo solo.png", desc:"Medio pollo" },
+    { name:"1/4 pollo solo", price:5800, img:"img/cuarto pollo solo.png", desc:"Cuarto de pollo" },
+    { name:"Porción papas familiar", price:9000, img:"img/porcion de papa.png", desc:"Porción de papas familiar" },
+    { name:"1/2 porción papas", price:6100, img:"img/1-2 porcion papas.png", desc:"Media porción papas" },
+    { name:"Porción arroz chaufa", price:5300, img:"img/porcion arroz chaufa.png", desc:"Porción de arroz chaufa" },
+    { name:"Porción fideos al pesto", price:5300, img:"img/porcion de fideo.png", desc:"Porción de fideos al pesto" },
+    { name:"Ensalada familiar", price:5400, img:"img/ensalada familiar.png", desc:"Ensalada familiar" },
+    { name:"Ensalada personal", price:3700, img:"img/ensalada personal.png", desc:"Ensalada personal" },
+  ],
+  "bebidas":[
+    { name:"Coca Cola 1.5L", price:3800, img:"img/coca cola.png", desc:"Bebida 1.5L" },
+    { name:"Coca Cola Cero", price:3800, img:"img/coca cola cero.png", desc:"Bebida 1.5L" },
+    { name:"Inca Kola", price:3800, img:"img/inca kola.png", desc:"Bebida 1.5L" },
+    { name:"Fanta", price:3800, img:"img/fanta.png", desc:"Bebida 1.5L" },
+    { name:"Sprite", price:3800, img:"img/sprite.png", desc:"Bebida 1.5L" },
+    { name:"Sprite Cero", price:3800, img:"img/sprite cero.png", desc:"Bebida 1.5L" },
+    { name:"Agua sin gas 500ml", price:1200, img:"img/agua sin gas.png", desc:"Agua 500ml" },
+    { name:"Agua con gas 500ml", price:1200, img:"img/agua con gas.png", desc:"Agua 500ml" },
+  ],
+  "descartables":[
+    { name:"Aluza CT5", price:300, img:"img/aluza ct5.png", desc:"Envase descartable Aluza CT5" },
+    { name:"Aluza CT3", price:400, img:"img/aluza ct3.png", desc:"Envase descartable Aluza CT3" },
+    { name:"Tenedor descartable", price:200, img:"img/servicio descartable.png", desc:"Tenedor y cuchillo plástico descartable." },
+    { name:"Bolsa ecológica", price:200, img:"img/bolsa ecologica.png", desc:"Bolsa ecológica" },
+    { name:"Vaso descartable", price:50, img:"img/vaso.png", desc:"Descartable" },
+  ]
+};
+
+const CATEGORY_META = {
+  "todo-el-menu":"📋 Todo el Menú",
+  "ofertas-familiares":"👨‍👩‍👧‍👦 Ofertas Familiares",
+  "ofertas-dos":"👫 Ofertas para Dos",
+  "ofertas-personales":"🍗 Ofertas Personales",
+  "platos-extras":"🍽️ Platos Extras",
+  "agregados":"➕ Agregados",
+  "bebidas":"🥤 Bebidas",
+  "descartables":"🧾 Descartables",
+};
+const CATEGORY_ORDER = [
+  "ofertas-familiares",
+  "ofertas-dos",
+  "ofertas-personales",
+  "platos-extras",
+  "agregados",
+  "bebidas",
+  "descartables"
+];
+
+/* =========================
+   Estado Carrito
+========================= */
+let cart = [];
+let currentProduct = null;
+let currentCategory = 'todo-el-menu';
+let selectedDrink = null;
+let productQuantity = 1;
+let bagChoice = null; // 'add' | 'none'
+let currentRealCategory = null;
+
+/* Helpers */
+function money(v){ return CURRENCY.format(v || 0); }
+
+function showToast(msg)
+{
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.remove(), 3000);
+}
+
+
+
+/* =========================
+   ❤ Burst de corazones (animación)
+========================= */
+function burstHearts(btn){
+  if(!btn) return;
+
+  // limpia burst anterior
+  btn.querySelectorAll('.pheart-burst').forEach(n => n.remove());
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pheart-burst';
+  btn.appendChild(wrap);
+
+  const COUNT = 11;                 // cuantos corazones salen
+  const RADIUS = 26;                // qué tan lejos viajan
+  const STEP_DELAY = 40;            // “en fila” uno tras otro
+
+  for(let i=0;i<COUNT;i++){
+    const s = document.createElement('span');
+    s.className = 'pheart-float';
+    s.textContent = '❤';
+
+    // ángulo repartido circular
+    const angle = (Math.PI * 2) * (i / COUNT);
+    const dx = Math.cos(angle) * RADIUS;
+    const dy = Math.sin(angle) * RADIUS;
+
+    s.style.setProperty('--dx', `${dx}px`);
+    s.style.setProperty('--dy', `${dy}px`);
+    s.style.animationDelay = `${i * STEP_DELAY}ms`;
+
+    // cuando termina, se elimina
+    s.addEventListener('animationend', ()=> s.remove());
+    wrap.appendChild(s);
+  }
+
+  // limpia el wrap luego de un rato (por seguridad)
+  setTimeout(()=> wrap.remove(), 1600);
+}
+
+
+function openModal(sel){
+  const m = document.querySelector(sel);
+  if(m) m.classList.add('active');
+}
+function closeModal(sel){
+  const m = document.querySelector(sel);
+  if(m) m.classList.remove('active');
+}
+
+function scrollToMenu(){
+  const el = document.getElementById('ofertas');
+  if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function safeImg(imgEl){
+  imgEl.onerror = () => { imgEl.style.display = 'none'; };
+}
+
+
+
+
+/* ✅ Wrap 30 caracteres por línea (para ticket + inputs) */
+function wrapWithCursorMap(text, limit){
+  const src = String(text || '').replace(/\r/g, '');
+
+  let out = '';
+  const map = new Array(src.length + 1);
+  let lineStartOut = 0;
+  let lineLen = 0;
+  let lastSpaceOutPos = -1;
+  let lastSpaceSrcIndex = -1;
+
+  for(let i=0; i<src.length; i++){
+    const ch = src[i];
+
+    // antes de escribir este char, guarda mapping
+    map[i] = out.length;
+
+    // si el usuario ya puso salto de línea, reiniciar contadores
+    if(ch === '\n'){
+      out += ch;
+      lineStartOut = out.length;
+      lineLen = 0;
+      lastSpaceOutPos = -1;
+      lastSpaceSrcIndex = -1;
+      continue;
+    }
+
+    // agregar char
+    out += ch;
+    lineLen++;
+
+    // marcar el último espacio de la línea (para cortar “bonito”)
+    if(ch === ' '){
+      lastSpaceOutPos = out.length - 1; // posición del espacio en out
+      lastSpaceSrcIndex = i;
+    }
+
+    // si excede límite, insertar salto
+    if(lineLen > limit){
+      if(lastSpaceOutPos >= lineStartOut){
+        // cortar por el último espacio
+        out = out.slice(0, lastSpaceOutPos) + '\n' + out.slice(lastSpaceOutPos + 1);
+
+        // recalcular: la línea nueva empieza después del \n
+        lineStartOut = lastSpaceOutPos + 1;
+        lineLen = out.length - lineStartOut;
+
+        // reset últimos espacios (se volverán a detectar)
+        lastSpaceOutPos = -1;
+        lastSpaceSrcIndex = -1;
+      } else {
+        // no hubo espacio, corte duro
+        out = out.slice(0, out.length - 1) + '\n' + ch;
+        lineStartOut = out.length - 1; // después del \n
+        lineLen = 1;
+        lastSpaceOutPos = -1;
+        lastSpaceSrcIndex = -1;
+      }
+    }
+  }
+
+
+
+  map[src.length] = out.length;
+  return { out, map };
+}
+
+function wrapText(text, limit = 25){
+  return wrapWithCursorMap(text, limit).out;
+}
+
+function wrap25(text){ 
+  return wrapText(text, 25); 
+}
+
+
+
+
+
+
+function enforceWrapLimit(el, limit = 30){
+  if(!el) return;
+
+  el.addEventListener('input', ()=>{
+    const original = String(el.value || '').replace(/\r/g,'');
+    const selStart = el.selectionStart ?? original.length;
+    const selEnd = el.selectionEnd ?? original.length;
+
+    const { out, map } = wrapWithCursorMap(original, limit);
+
+    if(out !== original){
+      el.value = out;
+
+      // mantener cursor lo más estable posible
+      const newStart = map[Math.min(selStart, map.length - 1)] ?? out.length;
+      const newEnd   = map[Math.min(selEnd, map.length - 1)] ?? out.length;
+
+      el.setSelectionRange(newStart, newEnd);
+    }
+  });
+}
+
+/* =========================
+   Render Products
+========================= */
+const productsContainer = document.getElementById('products-container');
+const catSliderEl = document.getElementById('cat-slider');
+
+const categoryTitleEl = document.getElementById('category-title');
+
+
+function productCard(p, category){
+  const card = document.createElement('div');
+  card.className = 'pcard';
+
+  const imgWrap = document.createElement('div');
+  imgWrap.className = 'pimg';
+
+  const img = document.createElement('img');
+  img.src = p.img || '';
+  img.alt = p.name;
+  safeImg(img);
+
+  const fallback = document.createElement('div');
+  fallback.textContent = '🍗';
+  fallback.style.display = 'none';
+  fallback.style.alignItems = 'center';
+  fallback.style.justifyContent = 'center';
+  fallback.style.width = '100%';
+  fallback.style.height = '100%';
+
+  imgWrap.appendChild(img);
+  imgWrap.appendChild(fallback);
+
+  img.addEventListener('load', ()=> { fallback.style.display = 'none'; });
+  img.addEventListener('error', ()=> { fallback.style.display = 'flex'; });
+
+  const body = document.createElement('div');
+  body.className = 'pbody';
+
+  const title = document.createElement('div');
+  title.className = 'ptitle';
+  title.textContent = p.name;
+
+  const desc = document.createElement('div');
+  desc.className = 'pdesc';
+  desc.textContent = p.desc || '';
+
+  //-------
+
+
+
+  const row = document.createElement('div');
+  row.className = 'prow';
+
+  const price = document.createElement('div');
+  price.className = 'pprice';
+  price.textContent = money(p.price);
+
+  // ❤️ Botón corazón (entre precio y Agregar)
+  const heartBtn = document.createElement('button');
+  heartBtn.className = 'pheart';
+  heartBtn.type = 'button';
+  heartBtn.setAttribute('aria-label', 'Agregar a favoritos');
+  heartBtn.dataset.action = 'heart';
+  heartBtn.dataset.heartId = `${category}__${p.name}`; // id simple
+
+  // icono (emoji para que no dependas de librerías)
+  heartBtn.innerHTML = `<span class="pheart-icon">❤</span>`;
+
+  const btn = document.createElement('button');
+  btn.className = 'padd';
+  btn.type = 'button';
+  btn.textContent = 'Agregar';
+  btn.dataset.action = 'add';
+  btn.dataset.product = JSON.stringify({ ...p, __category: category });
+
+  row.appendChild(price);
+  row.appendChild(heartBtn);
+  row.appendChild(btn);
+
+
+
+
+  // -------
+
+  body.appendChild(title);
+  body.appendChild(desc);
+  body.appendChild(row);
+
+  card.appendChild(imgWrap);
+  card.appendChild(body);
+
+  return card;
+}
+
+function renderProductsSingle(category){
+  productsContainer.innerHTML = '';
+  const list = PRODUCTS[category] || [];
+  list.forEach(p => productsContainer.appendChild(productCard(p, category)));
+}
+
+function renderProductsAll(){
+  productsContainer.innerHTML = '';
+  CATEGORY_ORDER.forEach(cat=>{
+    const head = document.createElement('div');
+    head.className = 'cat-header';
+    head.id = cat;
+
+    const h = document.createElement('h3');
+    h.textContent = CATEGORY_META[cat] || cat;
+
+    const line = document.createElement('div');
+    line.className = 'cat-line';
+
+    head.appendChild(h);
+    head.appendChild(line);
+    productsContainer.appendChild(head);
+
+    (PRODUCTS[cat] || []).forEach(p=>{
+      productsContainer.appendChild(productCard(p, cat));
+    });
+  });
+}
+
+/* =========================
+   Options modal logic
+========================= */
+const optName = document.getElementById('opt-product-name');
+const optDesc = document.getElementById('opt-product-desc');
+const optPrice = document.getElementById('opt-product-price');
+const qtyValue = document.getElementById('qty-value');
+const liveTotal = document.getElementById('live-total');
+
+const drinkSection = document.getElementById('drink-section');
+const bagSection = document.getElementById('bag-section');
+const bagOptions = document.getElementById('bag-options');
+const bagNote = document.getElementById('bag-note');
+
+function setDrinkVisible(visible){
+  drinkSection.classList.toggle('hidden', !visible);
+}
+
+/* ✅ Bolsas:
+   - familiares: obligatoria y por unidad => bagQty = qty
+   - para dos/personales/extras: obligatoria y 1 bolsa por cada 3 unidades => bagQty = ceil(qty/3)
+   - agregados: opcional; si elige bolsa => ceil(qty/3)
+   - bebidas/descartables: no aplica
+*/
+function bagQtyRule(qty){
+  const q = Math.max(1, Number(qty) || 1);
+
+  if(currentRealCategory === 'bebidas' || currentRealCategory === 'descartables'){
+    return 0;
+  }
+  if(bagChoice !== 'add') return 0;
+
+  if(currentRealCategory === 'ofertas-familiares'){
+    return q; // por unidad
+  }
+
+  if(
+    currentRealCategory === 'ofertas-dos' ||
+    currentRealCategory === 'ofertas-personales' ||
+    currentRealCategory === 'platos-extras' ||
+    currentRealCategory === 'agregados'
+  ){
+    return Math.ceil(q / 3); // 1 por cada 3 unidades
+  }
+
+  return 1;
+}
+
+function paintBagOptions(){
+  bagOptions.innerHTML = '';
+  bagNote.textContent = '';
+
+  if(currentRealCategory === 'bebidas' || currentRealCategory === 'descartables'){
+    bagSection.classList.add('hidden');
+    bagChoice = 'none';
+    return;
+  }
+  bagSection.classList.remove('hidden');
+
+  const mk = (val, label, disabled=false) => {
+    const l = document.createElement('label');
+    l.className = 'opt-radio';
+    l.innerHTML = `<input type="radio" name="bag" value="${val}" ${disabled ? 'disabled' : ''}> ${label}`;
+    if(disabled) l.style.opacity = '0.55';
+    return l;
+  };
+
+  const bagRequired =
+    currentRealCategory === 'ofertas-familiares' ||
+    currentRealCategory === 'ofertas-dos' ||
+    currentRealCategory === 'ofertas-personales' ||
+    currentRealCategory === 'platos-extras';
+
+  if(bagRequired){
+    bagOptions.appendChild(mk('add', 'Agregar bolsa (obligatorio)'));
+    bagOptions.appendChild(mk('none', 'No (no disponible)', true));
+  }else{
+    bagOptions.appendChild(mk('add', 'Agregar bolsa (opcional)'));
+    bagOptions.appendChild(mk('none', 'No, gracias'));
+  }
+
+  if(currentRealCategory === 'ofertas-familiares'){
+    bagNote.textContent = 'Familiares: bolsa obligatoria y se cobra por unidad (según cantidad).';
+  } else if(
+    currentRealCategory === 'ofertas-dos' ||
+    currentRealCategory === 'ofertas-personales' ||
+    currentRealCategory === 'platos-extras'
+  ){
+    bagNote.textContent = 'En esta categoría: bolsa obligatoria (1 bolsa por cada 3 unidades).';
+  } else if(currentRealCategory === 'agregados'){
+    bagNote.textContent = 'Agregados: bolsa opcional (si eliges bolsa, se agrega 1 por cada 3 unidades).';
+  } else {
+    bagNote.textContent = 'Bolsa ecológica según reglas de la categoría.';
+  }
+}
+
+function computeLiveTotal(){
+  if(!currentProduct) return { total:0, bagQty:0, base:0 };
+
+  const base = (currentProduct.price || 0) * productQuantity;
+  const bagQty = bagQtyRule(productQuantity);
+  const total = base + (bagQty * BAG_PRICE);
+
+  liveTotal.textContent = money(total);
+  return { total, bagQty, base };
+}
+
+/* =========================
+   Ticket (WhatsApp + 80mm)
+========================= */
+function formatDateCL(iso){
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = d.getHours();
+  const min = String(d.getMinutes()).padStart(2,'0');
+  const ss = String(d.getSeconds()).padStart(2,'0');
+
+  const ampm = hh >= 12 ? 'p. m.' : 'a. m.';
+  const hh12 = ((hh + 11) % 12 + 1);
+
+  return `${dd}-${mm}-${yyyy}, ${hh12}:${min}:${ss} ${ampm}`;
+}
+
+function pad3(n){
+  const s = String(n);
+  return s.length >= 3 ? s : ('000' + s).slice(-3);
+}
+
+function moneyPlain(v){
+  // $24.500
+  return money(v).replace(/\s/g,'');
+}
+
+function formatDateTicket(iso){
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const min = String(d.getMinutes()).padStart(2,'0');
+  return { date: `${dd}-${mm}-${yyyy}`, time: `${hh}:${min}` };
+}
+
+function moneyTicket(v){
+  // $24.700 (sin espacios raros)
+  return money(v).replace(/\s/g,'');
+}
+
+function buildTicketText80mm(order){
+  const W = 42; // ancho “seguro” 80mm en monospace (muy parecido a tu foto)
+  const sep = '='.repeat(W);
+  const sep2 = '-'.repeat(W);
+
+  const { date, time } = formatDateTicket(order.createdAt);
+  const pedido = pad3(order.ticketNumber || order.ticketNumber === 0 ? order.ticketNumber : (order.ticketNumber || '001'));
+
+  const cliente = wrapText(order.customer?.name || '', 25).split('\n');
+  const direccion = wrapText(order.customer?.address || '', 25).split('\n');
+  const comentario = wrapText(order.customer?.comment || '', 25).split('\n').filter(Boolean);
+  const fono = (order.customer?.phone || '').trim();
+
+  let t = '';
+  // Cabecera como tu foto
+  t += `POLLERÍA EL POLLÓN   - DELIVERY\n`;
+  t += `Pedido : ${pedido}     ${date}  ${time}\n`;
+  t += `${sep}\n\n`;
+
+  // Cliente
+  t += `Cliente\n   : ${cliente[0] || ''}\n`;
+  for(let i=1;i<cliente.length;i++) t += `           ${cliente[i]}\n`;
+
+  // Fono
+  t += `Fono      : ${fono}\n`;           
+
+  // Dirección
+  t += `Dirección : ${direccion[0] || ''}\n`;
+  for(let i=1;i<direccion.length;i++) t += `           ${direccion[i]}\n`;
+
+  // Comentario (opcional)
+  if(comentario.length){
+    t += `\nComentario: ${comentario[0] || ''}\n`;
+    for(let i=1;i<comentario.length;i++) t += `           ${comentario[i]}\n`;
+  }
+
+  t += `\n${sep}\n`;
+
+  // Productos como tu foto (1) ... x1)
+  order.items.forEach((it, idx)=>{
+    const n = idx + 1;
+    const nameLines = wrapText(it.name || '', 30).split('\n'); // nombre puede ser más largo
+    const qtyTxt = `x${it.qty || 1}`;
+
+    // línea principal: "1) Nombre ......... x1"
+    const left = `${n}) ${nameLines[0] || ''}`;
+    const spaces = Math.max(1, W - left.length - qtyTxt.length);
+    t += `${left}${' '.repeat(spaces)}${qtyTxt}\n`;
+
+    // sublíneas extra del nombre
+    for(let i=1;i<nameLines.length;i++){
+      t += `   ${nameLines[i]}\n`;
+    }
+
+    if(it.drink){
+      t += `   Bebida   : ${it.drink}\n`;
+    }
+
+    if(it.bagQty && it.bagQty > 0){
+      t += `   Bolsa    : x${it.bagQty}\n`;
+    }
+
+    const sub = moneyTicket(it.subtotal || 0);
+    t += `   Subtotal: ${sub}\n`;
+    t += `${sep2}\n`;
+  });
+
+  // Total
+  t += `\n${sep}\n`;
+  const totalTxt = `TOTAL A PAGAR  : ${moneyTicket(order.total || 0)}`;
+  t += `${totalTxt}\n`;
+  t += `${sep}\n\n`;
+
+  // Nota final como tu foto
+  t += `♦ Delivery tiene costo adicional\n`;
+  t += `♦ Según la distancia $2.500 a $4.000\n`;
+
+  return t;
+}
+
+function buildTicketHtml80mm(order){
+  const raw = buildTicketText80mm(order);
+
+  // Escapar HTML
+  const esc = raw
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;');
+
+  // Negritas solo en impresión
+  const html = esc
+    .replace('POLLERÍA EL POLLÓN', '<b>POLLERÍA EL POLLÓN</b>')
+    .replace('TOTAL A PAGAR', '<b>TOTAL A PAGAR</b>');
+
+  return html;
+}
+
+
+function buildWhatsappTextFromOrder(order){
+  // WhatsApp: texto tal cual (sin markdown pesado para que se vea igual)
+   // return "```" + buildTicketText80mm(order) + "```";
+  return buildTicketText80mm(order);
+}
+
+/* =========================
+   Cart UI
+========================= */
+const badgeDesktop = document.getElementById('cart-badge-desktop');
+const badgeDropdownMobile = document.getElementById('menu-dd-cart-badge');
+
+const floatingCartCount = document.getElementById('floating-cart-count');
+const floatingCartTotal = document.getElementById('floating-cart-total');
+
+function cartCount(){
+  return cart.reduce((acc,it)=> acc + (it.qty||0), 0);
+}
+function cartSum(){
+  return cart.reduce((acc,it)=> acc + (it.total||0), 0);
+}
+
+function updateCartUI(){
+  const c = cartCount();
+  const t = cartSum();
+
+  if(badgeDesktop) badgeDesktop.textContent = String(c);
+  if(badgeDropdownMobile) badgeDropdownMobile.textContent = String(c);
+
+  if(floatingCartCount) floatingCartCount.textContent = String(c);
+  if(floatingCartTotal) floatingCartTotal.textContent = money(t);
+    // ✅ latido solo si hay productos
+  const fcBtn = document.getElementById('floating-cart');
+  if(fcBtn) fcBtn.classList.toggle('is-empty', c === 0);
+
+}
+
+const cartItemsEl = document.getElementById('cart-items');
+const cartTotalEl = document.getElementById('cart-total');
+
+function renderCart(){
+  cartItemsEl.innerHTML = '';
+  if(cart.length === 0){
+    cartItemsEl.innerHTML = `<div class="p-4 rounded-2xl bg-gray-50 border text-gray-700 font-bold">Tu carrito está vacío.</div>`;
+    cartTotalEl.textContent = money(0);
+    updateCartUI();
+    return;
+  }
+
+  cart.forEach((it, idx)=>{
+    const row = document.createElement('div');
+    row.className = 'p-3 rounded-2xl bg-white border flex flex-col md:flex-row md:items-center md:justify-between gap-2';
+
+    const left = document.createElement('div');
+    left.innerHTML = `
+      <div class="font-extrabold">${it.name} <span class="text-gray-500 font-bold">x${it.qty}</span></div>
+      ${it.drink ? `<div class="text-sm text-gray-600">🥤 ${it.drink}</div>` : ''}
+      ${it.bagQty ? `<div class="text-sm text-gray-600">🛍️ Bolsa: ${it.bagQty} x ${money(BAG_PRICE)}</div>` : ''}
+    `;
+
+    const right = document.createElement('div');
+    right.className = 'flex items-center gap-2 justify-between md:justify-end';
+
+    const price = document.createElement('div');
+    price.className = 'font-extrabold text-red-700';
+    price.textContent = money(it.total);
+
+    const del = document.createElement('button');
+    del.className = 'btn-secondary';
+    del.type = 'button';
+    del.textContent = 'Eliminar';
+    del.dataset.action = 'remove';
+    del.dataset.index = String(idx);
+
+    right.appendChild(price);
+    right.appendChild(del);
+
+    row.appendChild(left);
+    row.appendChild(right);
+
+    cartItemsEl.appendChild(row);
+  });
+
+  cartTotalEl.textContent = money(cartSum());
+  updateCartUI();
+}
+
+/* =========================
+   Chatbot
+========================= */
+const chatbotToggle = document.getElementById('chatbot-toggle');
+const chatbotPanel = document.getElementById('chatbot-panel');
+const chatbotClose = document.getElementById('chatbot-close');
+const chatbotMessages = document.getElementById('chatbot-messages');
+
+function addChatMsg(text, who='bot'){
+  const d = document.createElement('div');
+  d.className = 'cb-msg ' + (who === 'user' ? 'cb-user' : 'cb-bot');
+  d.textContent = text;
+  chatbotMessages.appendChild(d);
+  chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+}
+
+function chatbotWelcome(){
+  chatbotMessages.innerHTML = '';
+  addChatMsg('¡Hola! Soy tu asistente. Elige una opción para ayudarte 😊', 'bot');
+}
+
+function setActiveCatBtn(cat){
+  // botones rojos del slider nuevo
+  document.querySelectorAll('.cat-card__btn.category-btn').forEach(b=>{
+    b.classList.toggle('is-active', b.dataset.cat === cat);
+  });
+}
+
+function updateCategoryTitle(cat){
+  if(!categoryTitleEl) return;
+
+  if(cat === 'todo-el-menu'){
+    categoryTitleEl.classList.add('is-hidden');
+    categoryTitleEl.textContent = '';
+    return;
+  }
+
+  categoryTitleEl.classList.remove('is-hidden');
+  categoryTitleEl.textContent = CATEGORY_META[cat] || cat;
+}
+
+function toggleCatSlider(cat){
+  if(!catSliderEl) return;
+
+  // ✅ En "Todo el Menú" se muestra el slider
+  if(cat === 'todo-el-menu'){
+    catSliderEl.classList.remove('is-hidden');
+  }else{
+    // ✅ En categorías específicas se oculta
+    catSliderEl.classList.add('is-hidden');
+  }
+}
+
+
+
+
+function setCategory(cat){
+  currentCategory = cat;
+  setActiveCatBtn(cat);
+  updateCategoryTitle(cat);
+
+  // ✅ NUEVO: ocultar/mostrar slider según categoría
+  toggleCatSlider(cat);
+
+  if(cat === 'todo-el-menu') renderProductsAll();
+  else renderProductsSingle(cat);
+}
+
+
+function jumpToCategory(cat){
+  if(cat === 'todo-el-menu'){
+    setCategory('todo-el-menu');
+    scrollToMenu();
+    return;
+  }
+  if(currentCategory !== 'todo-el-menu') setCategory('todo-el-menu');
+  setTimeout(()=>{
+    const el = document.getElementById(cat);
+    if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 50);
+}
+
+function handleChatbotAction(action){
+  addChatMsg(action, 'user');
+
+  if(action === 'familiares'){
+    addChatMsg('Los combos familiares más pedidos están en “Familiares”. Te llevo ahí ✅', 'bot');
+    jumpToCategory('ofertas-familiares');
+    scrollToMenu();
+  } else if(action === 'masvendidos'){
+    addChatMsg('🔥 Platos más vendidos: Ofertón más Chaufa, Ofertón más Fideo, Chaufa Brasa, Lomo Saltado. ¿Te llevo al menú? ✅', 'bot');
+    scrollToMenu();
+  } else if(action === 'horarios'){
+    addChatMsg('📍 Calle Vivar 1086, Iquique.\n🕒 Horario: 12:00 – 23:30', 'bot');
+  } else if(action === 'delivery'){
+    addChatMsg('🚚 Delivery aprox. $2.500–$4.000 según zona.\nPara pedir: agrega productos → abre carrito → WhatsApp.', 'bot');
+    openModal('#modal-delivery');
+  } else if(action === 'pedido'){
+    addChatMsg('Para hacer pedido: agrega productos → abre carrito → “Realizar pedido por WhatsApp” ✅', 'bot');
+  } else if(action === 'pagos'){
+    addChatMsg('Métodos de pago: En el local efectivo y tarjeta. En delivery solo efectivo.', 'bot');
+  } else if(action === 'redes'){
+    addChatMsg('Síguenos en Facebook / Instagram / TikTok (botones en el footer).', 'bot');
+  } else {
+    addChatMsg('Listo 😊', 'bot');
+  }
+}
+
+/* =========================
+   Dropdowns
+========================= */
+const menuDdBtn = document.getElementById('menu-dd-btn');
+const menuDdPanel = document.getElementById('menu-dd-panel');
+
+function togglePanel(panel){
+  if(!panel) return;
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !isHidden);
+}
+function closePanels(){
+  if(menuDdPanel) menuDdPanel.classList.add('hidden');
+  
+}
+
+/* =========================
+   Carousel fade PRO
+========================= */
+let carouselIndex = 0;
+let carouselTimer = null;
+
+function startCarousel(){
+  const container = document.getElementById('carousel-container');
+  if(!container) return;
+
+  const imgs = Array.from(container.querySelectorAll('img'))
+    .filter(img => img.style.display !== 'none');
+
+  if(!imgs.length) return;
+
+  imgs.forEach(img => img.classList.remove('is-active'));
+  carouselIndex = 0;
+  imgs[0].classList.add('is-active');
+
+  if(carouselTimer) clearInterval(carouselTimer);
+  carouselTimer = setInterval(()=>{
+    imgs[carouselIndex].classList.remove('is-active');
+    carouselIndex = (carouselIndex + 1) % imgs.length;
+    imgs[carouselIndex].classList.add('is-active');
+  }, 2000);
+}
+
+/* =========================
+   Global click handler
+========================= */
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+
+  // close modals by data-close
+  const closeSel = t?.dataset?.close;
+  if(closeSel){
+    closeModal(closeSel);
+    return;
+  }
+
+  // category change
+  if(t?.classList?.contains('category-btn') || t?.closest?.('.category-btn')){
+    const btn = t.classList.contains('category-btn') ? t : t.closest('.category-btn');
+    const cat = btn?.dataset?.cat;
+    if(!cat) return;
+    setCategory(cat);
+    scrollToMenu();
+    return;
+  }
+
+    // ❤️ click en corazón (favoritos + animación)
+  const heartBtn = t?.closest?.('[data-action="heart"]');
+  if(heartBtn){
+    // opcional: dejarlo marcado
+    heartBtn.classList.toggle('is-on');
+
+    // animación de muchos corazones
+    burstHearts(heartBtn);
+    return;
+  }
+
+
+  // add product
+  if(t?.dataset?.action === 'add'){
+    try{
+      const p = JSON.parse(t.dataset.product);
+      currentProduct = p;
+      currentRealCategory = p.__category;
+      selectedDrink = null;
+      productQuantity = 1;
+      bagChoice = null;
+
+      optName.textContent = p.name;
+      optDesc.textContent = p.desc || '';
+      optPrice.textContent = money(p.price);
+      qtyValue.textContent = String(productQuantity);
+
+      setDrinkVisible(currentRealCategory === 'ofertas-familiares');
+
+      document.querySelectorAll('input[name="drink"]').forEach(r=> r.checked = false);
+
+      paintBagOptions();
+      document.querySelectorAll('input[name="bag"]').forEach(r=> r.checked = false);
+
+      computeLiveTotal();
+      openModal('#options-modal');
+    }catch(err){
+      console.warn(err);
+    }
+    return;
+  }
+
+  // remove cart item
+  if(t?.dataset?.action === 'remove'){
+    const idx = Number(t.dataset.index);
+    if(Number.isFinite(idx)){
+      cart.splice(idx, 1);
+      renderCart();
+    }
+    return;
+  }
+
+  // dropdown items -> jump
+  // dropdown items -> mostrar categoría (con cabecera)
+if(t?.classList?.contains('menu-dd-item')){
+  const cat = t.dataset.scrollcat;
+  closePanels();
+
+  if(!cat) return;
+
+  // ✅ Si es "Todo el Menú" muestra todo
+  if(cat === 'todo-el-menu'){
+    setCategory('todo-el-menu');
+    scrollToMenu();
+    return;
+  }
+
+  // ✅ Si es una categoría: muestra solo esa categoría + cabecera
+  setCategory(cat);
+  scrollToMenu();
+  return;
+}
+
+
+  // combo buttons
+  if(t?.classList?.contains('combo-btn')){
+    const cat = t.dataset.scrollcat;
+    if(cat) { jumpToCategory(cat); scrollToMenu(); }
+    return;
+  }
+
+  // clicks outside dropdown panels
+  if(menuDdPanel && !menuDdPanel.classList.contains('hidden')){
+    const inside = menuDdPanel.contains(t) || menuDdBtn.contains(t);
+    if(!inside) menuDdPanel.classList.add('hidden');
+  }
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    closePanels();
+    document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+  }
+});
+
+/* =========================
+   Specific buttons
+========================= */
+document.getElementById('btn-delivery')?.addEventListener('click', ()=> openModal('#modal-delivery'));
+document.getElementById('btn-reservas')?.addEventListener('click', ()=> openModal('#modal-reservas'));
+document.getElementById('btn-retiros')?.addEventListener('click', ()=> openModal('#modal-retiros'));
+
+document.getElementById('open-delivery-from-footer')?.addEventListener('click', ()=> openModal('#modal-delivery'));
+
+document.getElementById('modal-reserva-go')?.addEventListener('click', ()=>{
+  window.open('https://pollon543.github.io/reservas-online/', '_blank');
+});
+
+document.getElementById('modal-retiro-go')?.addEventListener('click', ()=>{
+  const msg = encodeURIComponent('Hola, deseo coordinar un retiro. Mi pedido será para retiro (mínimo $100.000), gracias.');
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+});
+
+document.getElementById('menu-dd-btn')?.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  togglePanel(menuDdPanel);
+});
+
+
+document.getElementById('menu-dd-view-cart')?.addEventListener('click', ()=>{
+  closePanels();
+  openModal('#cart-modal');
+  renderCart();
+});
+
+document.getElementById('view-cart-desktop')?.addEventListener('click', ()=>{
+  openModal('#cart-modal');
+  renderCart();
+});
+
+/* Floating cart opens cart modal */
+document.getElementById('floating-cart')?.addEventListener('click', ()=>{
+  openModal('#cart-modal');
+  renderCart();
+});
+
+/* Cart modal close */
+document.getElementById('close-cart')?.addEventListener('click', ()=> closeModal('#cart-modal'));
+document.getElementById('close-cart-2')?.addEventListener('click', ()=> closeModal('#cart-modal'));
+
+/* Options modal quantity */
+document.getElementById('qty-minus')?.addEventListener('click', ()=>{
+  productQuantity = Math.max(1, productQuantity - 1);
+  qtyValue.textContent = String(productQuantity);
+  computeLiveTotal();
+});
+document.getElementById('qty-plus')?.addEventListener('click', ()=>{
+  productQuantity = Math.min(50, productQuantity + 1);
+  qtyValue.textContent = String(productQuantity);
+  computeLiveTotal();
+});
+
+/* Options modal cancel */
+function closeOptions(){ closeModal('#options-modal'); }
+document.getElementById('cancel-options')?.addEventListener('click', closeOptions);
+document.getElementById('cancel-options-2')?.addEventListener('click', closeOptions);
+
+/* Drink selection */
+document.querySelectorAll('input[name="drink"]').forEach(r=>{
+  r.addEventListener('change', ()=>{ selectedDrink = r.value; });
+});
+
+/* Bag choice selection */
+document.addEventListener('change', (e)=>{
+  const t = e.target;
+  if(t && t.name === 'bag'){
+    bagChoice = t.value;
+    computeLiveTotal();
+  }
+});
+
+/* Confirm add */
+
+
+
+document.getElementById('confirm-add')?.addEventListener('click', ()=>{
+  if(!currentProduct) return;
+
+  // validación bebida
+  if(currentRealCategory === 'ofertas-familiares' && !selectedDrink){
+    showToast('En familiares debes elegir una bebida.');
+    return;
+  }
+
+  // bolsa obligatoria en estas categorías
+  const bagRequired =
+    currentRealCategory === 'ofertas-familiares' ||
+    currentRealCategory === 'ofertas-dos' ||
+    currentRealCategory === 'ofertas-personales' ||
+    currentRealCategory === 'platos-extras';
+
+  if(bagRequired && bagChoice !== 'add'){
+    showToast('En esta categoría la bolsa es obligatoria.');
+    return;
+  }
+
+  if(currentRealCategory === 'bebidas' || currentRealCategory === 'descartables'){
+    bagChoice = 'none';
+  }
+
+  const { total, bagQty, base } = computeLiveTotal();
+  const bagTotal = (bagQty || 0) * BAG_PRICE;
+
+  const item = {
+    name: currentProduct.name,
+    price: currentProduct.price,
+    qty: productQuantity,
+    drink: (currentRealCategory === 'ofertas-familiares') ? selectedDrink : null,
+    bagQty: bagQty || 0,
+    subtotal: base + bagTotal,
+    total: total
+  };
+
+  cart.push(item);
+  updateCartUI();
+  showToast('Agregado al carrito ✅');
+  closeOptions();
+});
+
+
+
+
+
+/* Checkout */
+document.getElementById('checkout-btn')?.addEventListener('click', ()=>{
+  if(cart.length === 0){
+    showToast('Tu carrito está vacío.');
+    return;
+  }
+  closeModal('#cart-modal');
+  openModal('#checkout-modal');
+});
+
+function closeCheckout(){ closeModal('#checkout-modal'); }
+document.getElementById('cancel-checkout')?.addEventListener('click', closeCheckout);
+document.getElementById('cancel-checkout-2')?.addEventListener('click', closeCheckout);
+
+document.getElementById('checkout-form')?.addEventListener('submit', (e)=>{
+  e.preventDefault();
+
+  if(cart.length === 0){
+    showToast('Tu carrito está vacío.');
+    closeCheckout();
+    return;
+  }
+                                                   
+
+
+
+
+
+
+
+  
+const name = wrapText(document.getElementById('cust-name').value, 25);
+const address = wrapText(document.getElementById('cust-address').value, 25);
+const phone = document.getElementById('cust-phone').value.trim();
+const comment = wrapText(document.getElementById('cust-comment').value, 25);
+
+
+  const ticketNumber = pad3(orders.length + 1);
+  const order = {
+    id: 'P' + Date.now(),
+    createdAt: new Date().toISOString(),
+    ticketNumber,
+    customer: { name, address, phone, comment },
+    items: cart.map(it=>({
+      name: it.name,
+      qty: it.qty,
+      subtotal: it.subtotal,
+      drink: it.drink,
+      bagQty: it.bagQty
+    })),
+    total: cartSum(),
+    status: 'Pendiente'
+  };
+
+  orders.push(order);
+  saveOrders();
+
+  const text = buildWhatsappTextFromOrder(order);
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+
+  cart = [];
+  updateCartUI();
+  renderCart();
+
+  closeCheckout();
+  showToast('Pedido generado ✅ (abre WhatsApp)');
+});
+
+/* Catbar arrows (móvil: izq y der) */
+
+
+/* Chatbot */
+chatbotToggle?.addEventListener('click', ()=>{
+  chatbotPanel.classList.toggle('hidden');
+  if(!chatbotPanel.classList.contains('hidden')) chatbotWelcome();
+});
+chatbotClose?.addEventListener('click', ()=> chatbotPanel.classList.add('hidden'));
+document.querySelectorAll('.chip').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    handleChatbotAction(btn.dataset.chat);
+  });
+});
+
+/* Year */
+document.getElementById('year').textContent = String(new Date().getFullYear());
+
+/* ✅ Enforce 30 chars por línea en checkout */
+enforceWrapLimit(document.getElementById('cust-name'), 25);
+enforceWrapLimit(document.getElementById('cust-address'), 25);
+enforceWrapLimit(document.getElementById('cust-comment'), 25);
+
+/* Init */
+function init(){
+  initOrdersBackend();
+  loadOrders();
+  setCategory('todo-el-menu');
+  updateCartUI();
+  renderCart();
+  chatbotWelcome();
+  startCarousel();
+}
+init();
+
+/* Expose for admin.js */
+window.__POLLON__ = {
+  money,
+  orders: () => orders,
+  setOrders: (arr)=>{ orders = arr; saveOrders(); },
+  saveOrders,
+  loadOrders,
+  buildWhatsappTextFromOrder,
+  buildTicketText80mm,
+  buildTicketHtml80mm,
+  WHATSAPP_NUMBER
+
+
+};
+
+// ===== CATEGORÍAS SLIDER (8 dots + flechas abajo + swipe) =====
+(() => {
+  const track = document.getElementById("cat-track");
+  const btnPrev = document.getElementById("cat-prev");
+  const btnNext = document.getElementById("cat-next");
+  const dotsWrap = document.getElementById("cat-dots");
+
+  if (!track || !btnPrev || !btnNext || !dotsWrap) return;
+
+  function getGap(){
+    const style = getComputedStyle(track);
+    return parseFloat(style.columnGap || style.gap || "10") || 10;
+  }
+
+  function getStep(){
+    const first = track.querySelector(".cat-card");
+    if(!first) return 240;
+    return first.getBoundingClientRect().width + getGap();
+  }
+
+  function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+  function buildDots(){
+    const cards = track.querySelectorAll(".cat-card");
+    dotsWrap.innerHTML = "";
+    cards.forEach((_, i) => {
+      const dot = document.createElement("span");
+      dot.className = "cat-dot" + (i === 0 ? " is-active" : "");
+      dot.addEventListener("click", () => {
+        track.scrollTo({ left: i * getStep(), behavior: "smooth" });
+      });
+      dotsWrap.appendChild(dot);
+    });
+  }
+
+  function setActiveDot(index){
+    const dots = dotsWrap.querySelectorAll(".cat-dot");
+    dots.forEach(d => d.classList.remove("is-active"));
+    if(dots[index]) dots[index].classList.add("is-active");
+  }
+
+  function updateUI(){
+    const step = getStep();
+    const cards = track.querySelectorAll(".cat-card");
+    const maxIndex = Math.max(0, cards.length - 1);
+
+    const idx = clamp(Math.round(track.scrollLeft / step), 0, maxIndex);
+    setActiveDot(idx);
+
+    // activar / desactivar flechas (pro)
+    btnPrev.disabled = track.scrollLeft <= 2;
+    btnNext.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 2);
+  }
+
+  function scrollByCard(dir){
+    track.scrollBy({ left: dir * getStep(), behavior: "smooth" });
+  }
+
+  btnPrev.addEventListener("click", () => scrollByCard(-1));
+  btnNext.addEventListener("click", () => scrollByCard(1));
+
+  // Scroll
+  track.addEventListener("scroll", () => requestAnimationFrame(updateUI));
+
+  // Drag mouse (en PC) — swipe en móvil ya funciona por overflow
+  let isDown = false;
+  let startX = 0;
+  let startScroll = 0;
+
+    track.addEventListener("pointerdown", (e) => {
+    // ✅ Si el usuario tocó un botón (imagen o texto), NO activar drag
+    if (e.target.closest(".category-btn")) return;
+
+    isDown = true;
+    startX = e.clientX;
+    startScroll = track.scrollLeft;
+    track.setPointerCapture(e.pointerId);
+  });
+
+    track.addEventListener("pointermove", (e) => {
+    if (!isDown) return;
+    const dx = e.clientX - startX;
+    track.scrollLeft = startScroll - dx;
+  });
+
+
+  track.addEventListener("pointerup", () => {
+    isDown = false;
+    updateUI();
+  });
+
+  track.addEventListener("pointercancel", () => {
+    isDown = false;
+    updateUI();
+  });
+
+  // Inicial
+  buildDots();
+  updateUI();
+
+  // Si cambia el tamaño (móvil ↔ tablet/pc), recalcular
+  window.addEventListener("resize", () => {
+    buildDots();
+    updateUI();
+  });
+})();
