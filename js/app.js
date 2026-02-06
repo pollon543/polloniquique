@@ -25,16 +25,19 @@ window.isAdminOpen = window.isAdminOpen || isAdminOpen;
 
 function initOrdersBackend(){
   try{
-    const firebaseConfig = {
-    apiKey: "AIzaSyAWv3zPEUU82YcLSwOxsv-MQZP2ZjcycOg",
-    authDomain: "elpollon01-307da.firebaseapp.com",
-    databaseURL: "https://elpollon01-307da-default-rtdb.firebaseio.com",
-    projectId: "elpollon01-307da",
-    storageBucket: "elpollon01-307da.firebasestorage.app",
-    messagingSenderId: "1024156951564",
-    appId: "1:1024156951564:web:946a9b6003d8dff1053a29"
+     const firebaseConfig = {
+    apiKey: "AIzaSyBVvgyAec0TJTSVILIkcW03yDBINLuYhNY",
+    authDomain: "pollonbd01.firebaseapp.com",
+    databaseURL: "https://pollonbd01-default-rtdb.firebaseio.com",
+    projectId: "pollonbd01",
+    storageBucket: "pollonbd01.firebasestorage.app",
+    messagingSenderId: "341052794357",
+    appId: "1:341052794357:web:f9617d9e97103211dfacbc",
+    measurementId: "G-WX88J5P126"
   };
 
+
+     
     const looksPlaceholder = Object.values(firebaseConfig).some(v => String(v).includes("REEMPLAZA"));
     if(looksPlaceholder){
       console.warn('[Firebase] Config placeholder: usando localStorage.');
