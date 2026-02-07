@@ -5,18 +5,28 @@
    - Bolsa: familiares por unidad; otras categorías 1 bolsa por cada 3 unidades
    - Checkout con comentario + salto automático 25 caracteres por línea
    - Ticket WhatsApp + ticket impresión 80mm
+   - Firestore listener + timbre SOLO si admin está abierto
+   - FIX: ticketNumber estable (no depende de orders.length)
+   - FIX: snapshot guarda doc.id
+   - FIX: guarda SOLO el pedido nuevo en Firestore (no re-subir todo)
 ========================================================= */
 
 const CURRENCY = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 const BAG_PRICE = 200;
 const WHATSAPP_NUMBER = '56986925310';
+
 const ORDERS_PATH = 'pollon_orders_v1';
-const ORDERS_KEY = 'pollon_orders_local_v1';
+const ORDERS_KEY  = 'pollon_orders_local_v1';
+
+// ✅ ticket secuencial (estable)
+const TICKET_SEQ_KEY = 'pollon_ticket_seq_v1';
 
 let db = null;
 let ordersRef = null;
 let firestoreReady = false;
- let ordersListenerReady = false;
+
+// ✅ listener flag global (NO adentro de funciones)
+let ordersListenerReady = false;
 
 /* ✅ fallback seguro (evita crash si Firestore llama antes que admin.js) */
 function isAdminOpen(){
@@ -24,19 +34,46 @@ function isAdminOpen(){
 }
 window.isAdminOpen = window.isAdminOpen || isAdminOpen;
 
+/* Orders storage */
+let orders = [];
+
+// =========================
+// Ticket number estable
+// =========================
+function pad3(n){
+  const s = String(n);
+  return s.length >= 3 ? s : ('000' + s).slice(-3);
+}
+
+function nextTicketNumber(){
+  let seq = 0;
+  try{
+    seq = Number(localStorage.getItem(TICKET_SEQ_KEY) || '0') || 0;
+  }catch{
+    seq = 0;
+  }
+  seq += 1;
+  try{
+    localStorage.setItem(TICKET_SEQ_KEY, String(seq));
+  }catch{}
+  return pad3(seq);
+}
+
+// =========================
+// Firestore init + listener
+// =========================
 function initOrdersBackend(){
   try{
     const firebaseConfig = {
-    apiKey: "AIzaSyBVvgyAec0TJTSVILIkcW03yDBINLuYhNY",
-    authDomain: "pollonbd01.firebaseapp.com",
-    databaseURL: "https://pollonbd01-default-rtdb.firebaseio.com",
-    projectId: "pollonbd01",
-    storageBucket: "pollonbd01.firebasestorage.app",
-    messagingSenderId: "341052794357",
-    appId: "1:341052794357:web:f9617d9e97103211dfacbc",
-    measurementId: "G-WX88J5P126"
- };
-
+      apiKey: "AIzaSyBVvgyAec0TJTSVILIkcW03yDBINLuYhNY",
+      authDomain: "pollonbd01.firebaseapp.com",
+      databaseURL: "https://pollonbd01-default-rtdb.firebaseio.com",
+      projectId: "pollonbd01",
+      storageBucket: "pollonbd01.firebasestorage.app",
+      messagingSenderId: "341052794357",
+      appId: "1:341052794357:web:f9617d9e97103211dfacbc",
+      measurementId: "G-WX88J5P126"
+    };
 
     const looksPlaceholder = Object.values(firebaseConfig).some(v => String(v).includes("REEMPLAZA"));
     if(looksPlaceholder){
@@ -45,56 +82,44 @@ function initOrdersBackend(){
       return;
     }
 
-    // firebase.initializeApp(firebaseConfig);
+    // ✅ evita error de doble init
     if(!firebase.apps || !firebase.apps.length){
-    firebase.initializeApp(firebaseConfig);
-   }
+      firebase.initializeApp(firebaseConfig);
+    }
 
     db = firebase.firestore();
     ordersRef = db.collection(ORDERS_PATH);
     firestoreReady = true;
 
+    // ✅ Listener tiempo real
+    ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
 
+      // ✅ detectar si llegó un pedido nuevo (solo después de la primera carga)
+      let hasNew = false;
+      if(ordersListenerReady){
+        snap.docChanges().forEach((ch)=>{
+          if(ch.type === "added") hasNew = true;
+        });
+      }
+      ordersListenerReady = true;
 
+      // ✅ IMPORTANTÍSIMO: guardar doc.id también
+      orders = [];
+      snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
 
- ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
+      // ✅ ordenar seguro
+      orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
 
-  // ✅ detectar si llegó un pedido nuevo (solo después de la primera carga)
-  let hasNew = false;
-  if(ordersListenerReady){
-    snap.docChanges().forEach((ch)=>{
-      if(ch.type === "added") hasNew = true;
+      // ✅ refrescar admin si está abierto
+      if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
+        if (typeof window.renderAdmin === 'function') window.renderAdmin();
+
+        // ✅ SOLO si admin está abierto, suena timbre cuando hay pedido nuevo
+        if(hasNew && typeof window.onNewOrderArrived === "function"){
+          window.onNewOrderArrived();
+        }
+      }
     });
-  }
-  ordersListenerReady = true;
-
-  // ✅ tu lógica actual (igual)
-  orders = [];
-  snap.forEach(doc => orders.push(doc.data()));
-  orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
-
-  // ✅ refrescar admin si está abierto
-  if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
-    if (typeof window.renderAdmin === 'function') window.renderAdmin();
-
-    // ✅ SOLO si admin está abierto, suena timbre cuando hay pedido nuevo
-    if(hasNew && typeof window.onNewOrderArrived === "function"){
-      window.onNewOrderArrived();
-    }
-  }
-
- });
-
-
-    // ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
-    //   orders = [];
-    //   snap.forEach(doc => orders.push(doc.data()));
-    //   orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
-
-    //   if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
-    //     if (typeof window.renderAdmin === 'function') window.renderAdmin();
-    //   }
-    // });
 
   }catch(err){
     console.warn('[Firebase] Falló init, usando localStorage:', err);
@@ -102,11 +127,11 @@ function initOrdersBackend(){
   }
 }
 
-/* Orders storage */
-let orders = [];
-
+// =========================
+// Storage (local / fallback)
+// =========================
 function saveOrders(){
-  if(firestoreReady && ordersRef){
+  if(firestoreReady && ordersRef && db){
     const batch = db.batch();
     orders.forEach(o=>{
       const docRef = ordersRef.doc(o.id);
@@ -114,14 +139,15 @@ function saveOrders(){
     });
     batch.commit().catch(e=>{
       console.warn('[Firebase] batch commit error, fallback local:', e);
-      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+      try{ localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)); }catch{}
     });
   }else{
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    try{ localStorage.setItem(ORDERS_KEY, JSON.stringify(orders)); }catch{}
   }
 }
 
 function loadOrders(){
+  // ✅ si Firestore está activo, el listener se encarga
   if(firestoreReady) return;
   try{
     const raw = localStorage.getItem(ORDERS_KEY);
@@ -129,6 +155,18 @@ function loadOrders(){
   }catch{
     orders = [];
   }
+}
+
+// ✅ guarda SOLO 1 pedido (PRO)
+function saveSingleOrder(order){
+  if(firestoreReady && ordersRef){
+    return ordersRef.doc(order.id).set(order, { merge:true }).catch((e)=>{
+      console.warn('[Firebase] set(order) falló, fallback local:', e);
+      saveOrders();
+    });
+  }
+  saveOrders();
+  return Promise.resolve();
 }
 
 /* =========================
@@ -139,7 +177,7 @@ const PRODUCTS = {
     { name:"Ofertón más chaufa", price:24500, img:"img/oferton mas chaufa.png", desc:"Pollo entero, papas fritas, arroz chaufa, ensalada y bebidas 1.5lt." },
     { name:"Ofertón más fideo", price:24500, img:"img/oferton mas fideo.png", desc:"Pollo entero, papas fritas, fideos al pesto, ensalada y bebidas 1.5lt." },
     { name:"Ofertón más chaufa pura papa", price:24500, img:"img/oferton mas chaufa pura papa.png", desc:"Pollo entero, papas, extra papa, chaufa y bebidas 1.5lt." },
-    { name:"Ofertón con fideo", price:23500, img:"img/oferton con fideo.png", desc:"Pollo entero, papas, fideos al pesto y bebidas 1.5lt" },
+    { name:"Ofertón con fideo", price:23500, img:"img/oferton con fideo.png", desc:"Pollo entero, papas, fideos al pesto, ensalada y bebidas 1.5lt" },
     { name:"Ofertón sin ensalada", price:23500, img:"img/oferton sin ensalada.png", desc:"Pollo entero, papas, chaufa y bebidas 1.5lt" },
     { name:"Ofertón pura papa", price:23500, img:"img/oferton pura papa.png", desc:"Pollo entero, papas + 1/2 porción papa y bebidas" },
     { name:"Ofertón familiar", price:22500, img:"img/oferton familiar.png", desc:"Pollo entero, papas, ensalada y bebidas 1.5lt" },
@@ -234,8 +272,7 @@ let currentRealCategory = null;
 /* Helpers */
 function money(v){ return CURRENCY.format(v || 0); }
 
-function showToast(msg)
-{
+function showToast(msg){
   const t = document.createElement('div');
   t.className = 'toast';
   t.textContent = msg;
@@ -243,31 +280,27 @@ function showToast(msg)
   setTimeout(()=> t.remove(), 3000);
 }
 
-
-
 /* =========================
    ❤ Burst de corazones (animación)
 ========================= */
 function burstHearts(btn){
   if(!btn) return;
 
-  // limpia burst anterior
   btn.querySelectorAll('.pheart-burst').forEach(n => n.remove());
 
   const wrap = document.createElement('div');
   wrap.className = 'pheart-burst';
   btn.appendChild(wrap);
 
-  const COUNT = 11;                 // cuantos corazones salen
-  const RADIUS = 26;                // qué tan lejos viajan
-  const STEP_DELAY = 40;            // “en fila” uno tras otro
+  const COUNT = 11;
+  const RADIUS = 26;
+  const STEP_DELAY = 40;
 
   for(let i=0;i<COUNT;i++){
     const s = document.createElement('span');
     s.className = 'pheart-float';
     s.textContent = '❤';
 
-    // ángulo repartido circular
     const angle = (Math.PI * 2) * (i / COUNT);
     const dx = Math.cos(angle) * RADIUS;
     const dy = Math.sin(angle) * RADIUS;
@@ -276,15 +309,12 @@ function burstHearts(btn){
     s.style.setProperty('--dy', `${dy}px`);
     s.style.animationDelay = `${i * STEP_DELAY}ms`;
 
-    // cuando termina, se elimina
     s.addEventListener('animationend', ()=> s.remove());
     wrap.appendChild(s);
   }
 
-  // limpia el wrap luego de un rato (por seguridad)
   setTimeout(()=> wrap.remove(), 1600);
 }
-
 
 function openModal(sel){
   const m = document.querySelector(sel);
@@ -304,10 +334,7 @@ function safeImg(imgEl){
   imgEl.onerror = () => { imgEl.style.display = 'none'; };
 }
 
-
-
-
-/* ✅ Wrap 30 caracteres por línea (para ticket + inputs) */
+/* ✅ Wrap (25 chars) */
 function wrapWithCursorMap(text, limit){
   const src = String(text || '').replace(/\r/g, '');
 
@@ -316,59 +343,38 @@ function wrapWithCursorMap(text, limit){
   let lineStartOut = 0;
   let lineLen = 0;
   let lastSpaceOutPos = -1;
-  let lastSpaceSrcIndex = -1;
 
   for(let i=0; i<src.length; i++){
     const ch = src[i];
-
-    // antes de escribir este char, guarda mapping
     map[i] = out.length;
 
-    // si el usuario ya puso salto de línea, reiniciar contadores
     if(ch === '\n'){
       out += ch;
       lineStartOut = out.length;
       lineLen = 0;
       lastSpaceOutPos = -1;
-      lastSpaceSrcIndex = -1;
       continue;
     }
 
-    // agregar char
     out += ch;
     lineLen++;
 
-    // marcar el último espacio de la línea (para cortar “bonito”)
-    if(ch === ' '){
-      lastSpaceOutPos = out.length - 1; // posición del espacio en out
-      lastSpaceSrcIndex = i;
-    }
+    if(ch === ' ') lastSpaceOutPos = out.length - 1;
 
-    // si excede límite, insertar salto
     if(lineLen > limit){
       if(lastSpaceOutPos >= lineStartOut){
-        // cortar por el último espacio
         out = out.slice(0, lastSpaceOutPos) + '\n' + out.slice(lastSpaceOutPos + 1);
-
-        // recalcular: la línea nueva empieza después del \n
         lineStartOut = lastSpaceOutPos + 1;
         lineLen = out.length - lineStartOut;
-
-        // reset últimos espacios (se volverán a detectar)
         lastSpaceOutPos = -1;
-        lastSpaceSrcIndex = -1;
       } else {
-        // no hubo espacio, corte duro
         out = out.slice(0, out.length - 1) + '\n' + ch;
-        lineStartOut = out.length - 1; // después del \n
+        lineStartOut = out.length - 1;
         lineLen = 1;
         lastSpaceOutPos = -1;
-        lastSpaceSrcIndex = -1;
       }
     }
   }
-
-
 
   map[src.length] = out.length;
   return { out, map };
@@ -377,15 +383,6 @@ function wrapWithCursorMap(text, limit){
 function wrapText(text, limit = 25){
   return wrapWithCursorMap(text, limit).out;
 }
-
-function wrap25(text){ 
-  return wrapText(text, 25); 
-}
-
-
-
-
-
 
 function enforceWrapLimit(el, limit = 30){
   if(!el) return;
@@ -399,11 +396,8 @@ function enforceWrapLimit(el, limit = 30){
 
     if(out !== original){
       el.value = out;
-
-      // mantener cursor lo más estable posible
       const newStart = map[Math.min(selStart, map.length - 1)] ?? out.length;
       const newEnd   = map[Math.min(selEnd, map.length - 1)] ?? out.length;
-
       el.setSelectionRange(newStart, newEnd);
     }
   });
@@ -414,9 +408,7 @@ function enforceWrapLimit(el, limit = 30){
 ========================= */
 const productsContainer = document.getElementById('products-container');
 const catSliderEl = document.getElementById('cat-slider');
-
 const categoryTitleEl = document.getElementById('category-title');
-
 
 function productCard(p, category){
   const card = document.createElement('div');
@@ -455,10 +447,6 @@ function productCard(p, category){
   desc.className = 'pdesc';
   desc.textContent = p.desc || '';
 
-  //-------
-
-
-
   const row = document.createElement('div');
   row.className = 'prow';
 
@@ -466,15 +454,12 @@ function productCard(p, category){
   price.className = 'pprice';
   price.textContent = money(p.price);
 
-  // ❤️ Botón corazón (entre precio y Agregar)
   const heartBtn = document.createElement('button');
   heartBtn.className = 'pheart';
   heartBtn.type = 'button';
   heartBtn.setAttribute('aria-label', 'Agregar a favoritos');
   heartBtn.dataset.action = 'heart';
-  heartBtn.dataset.heartId = `${category}__${p.name}`; // id simple
-
-  // icono (emoji para que no dependas de librerías)
+  heartBtn.dataset.heartId = `${category}__${p.name}`;
   heartBtn.innerHTML = `<span class="pheart-icon">❤</span>`;
 
   const btn = document.createElement('button');
@@ -487,11 +472,6 @@ function productCard(p, category){
   row.appendChild(price);
   row.appendChild(heartBtn);
   row.appendChild(btn);
-
-
-
-
-  // -------
 
   body.appendChild(title);
   body.appendChild(desc);
@@ -550,12 +530,7 @@ function setDrinkVisible(visible){
   drinkSection.classList.toggle('hidden', !visible);
 }
 
-/* ✅ Bolsas:
-   - familiares: obligatoria y por unidad => bagQty = qty
-   - para dos/personales/extras: obligatoria y 1 bolsa por cada 3 unidades => bagQty = ceil(qty/3)
-   - agregados: opcional; si elige bolsa => ceil(qty/3)
-   - bebidas/descartables: no aplica
-*/
+/* ✅ Bolsas */
 function bagQtyRule(qty){
   const q = Math.max(1, Number(qty) || 1);
 
@@ -574,7 +549,7 @@ function bagQtyRule(qty){
     currentRealCategory === 'platos-extras' ||
     currentRealCategory === 'agregados'
   ){
-    return Math.ceil(q / 3); // 1 por cada 3 unidades
+    return Math.ceil(q / 3);
   }
 
   return 1;
@@ -607,7 +582,6 @@ function paintBagOptions(){
 
   if(bagRequired){
     bagOptions.appendChild(mk('add', 'Agregar bolsa'));
-    // bagOptions.appendChild(mk('none', 'No (no disponible)', true));
   }else{
     bagOptions.appendChild(mk('add', 'Agregar bolsa (opcional)'));
     bagOptions.appendChild(mk('none', 'No, gracias'));
@@ -642,31 +616,6 @@ function computeLiveTotal(){
 /* =========================
    Ticket (WhatsApp + 80mm)
 ========================= */
-function formatDateCL(iso){
-  const d = new Date(iso);
-  const dd = String(d.getDate()).padStart(2,'0');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const yyyy = d.getFullYear();
-  const hh = d.getHours();
-  const min = String(d.getMinutes()).padStart(2,'0');
-  const ss = String(d.getSeconds()).padStart(2,'0');
-
-  const ampm = hh >= 12 ? 'p. m.' : 'a. m.';
-  const hh12 = ((hh + 11) % 12 + 1);
-
-  return `${dd}-${mm}-${yyyy}, ${hh12}:${min}:${ss} ${ampm}`;
-}
-
-function pad3(n){
-  const s = String(n);
-  return s.length >= 3 ? s : ('000' + s).slice(-3);
-}
-
-function moneyPlain(v){
-  // $24.500
-  return money(v).replace(/\s/g,'');
-}
-
 function formatDateTicket(iso){
   const d = new Date(iso);
   const dd = String(d.getDate()).padStart(2,'0');
@@ -678,17 +627,16 @@ function formatDateTicket(iso){
 }
 
 function moneyTicket(v){
-  // $24.700 (sin espacios raros)
   return money(v).replace(/\s/g,'');
 }
 
 function buildTicketText80mm(order){
-  const W = 42; // ancho “seguro” 80mm en monospace (muy parecido a tu foto)
+  const W = 42;
   const sep = '='.repeat(W);
   const sep2 = '-'.repeat(W);
 
   const { date, time } = formatDateTicket(order.createdAt);
-  const pedido = pad3(order.ticketNumber || order.ticketNumber === 0 ? order.ticketNumber : (order.ticketNumber || '001'));
+  const pedido = pad3(order.ticketNumber || '001');
 
   const cliente = wrapText(order.customer?.name || '', 25).split('\n');
   const direccion = wrapText(order.customer?.address || '', 25).split('\n');
@@ -696,23 +644,18 @@ function buildTicketText80mm(order){
   const fono = (order.customer?.phone || '').trim();
 
   let t = '';
-  // Cabecera como tu foto
   t += `POLLERÍA EL POLLÓN   - DELIVERY\n`;
   t += `Pedido : ${pedido}     ${date}  ${time}\n`;
   t += `${sep}\n\n`;
 
-  // Cliente
   t += `Cliente\n   : ${cliente[0] || ''}\n`;
   for(let i=1;i<cliente.length;i++) t += `           ${cliente[i]}\n`;
 
-  // Fono
-  t += `Fono      : ${fono}\n`;           
+  t += `Fono      : ${fono}\n`;
 
-  // Dirección
   t += `Dirección : ${direccion[0] || ''}\n`;
   for(let i=1;i<direccion.length;i++) t += `           ${direccion[i]}\n`;
 
-  // Comentario (opcional)
   if(comentario.length){
     t += `\nComentario: ${comentario[0] || ''}\n`;
     for(let i=1;i<comentario.length;i++) t += `           ${comentario[i]}\n`;
@@ -720,18 +663,15 @@ function buildTicketText80mm(order){
 
   t += `\n${sep}\n`;
 
-  // Productos como tu foto (1) ... x1)
   order.items.forEach((it, idx)=>{
     const n = idx + 1;
-    const nameLines = wrapText(it.name || '', 30).split('\n'); // nombre puede ser más largo
+    const nameLines = wrapText(it.name || '', 30).split('\n');
     const qtyTxt = `x${it.qty || 1}`;
 
-    // línea principal: "1) Nombre ......... x1"
     const left = `${n}) ${nameLines[0] || ''}`;
     const spaces = Math.max(1, W - left.length - qtyTxt.length);
     t += `${left}${' '.repeat(spaces)}${qtyTxt}\n`;
 
-    // sublíneas extra del nombre
     for(let i=1;i<nameLines.length;i++){
       t += `   ${nameLines[i]}\n`;
     }
@@ -749,13 +689,10 @@ function buildTicketText80mm(order){
     t += `${sep2}\n`;
   });
 
-  // Total
   t += `\n${sep}\n`;
-  const totalTxt = `TOTAL A PAGAR  : ${moneyTicket(order.total || 0)}`;
-  t += `${totalTxt}\n`;
+  t += `TOTAL A PAGAR  : ${moneyTicket(order.total || 0)}\n`;
   t += `${sep}\n\n`;
 
-  // Nota final como tu foto
   t += `♦ Delivery tiene costo adicional\n`;
   t += `♦ Según la distancia $2.500 a $4.000\n`;
 
@@ -765,13 +702,11 @@ function buildTicketText80mm(order){
 function buildTicketHtml80mm(order){
   const raw = buildTicketText80mm(order);
 
-  // Escapar HTML
   const esc = raw
     .replaceAll('&','&amp;')
     .replaceAll('<','&lt;')
     .replaceAll('>','&gt;');
 
-  // Negritas solo en impresión
   const html = esc
     .replace('POLLERÍA EL POLLÓN', '<b>POLLERÍA EL POLLÓN</b>')
     .replace('TOTAL A PAGAR', '<b>TOTAL A PAGAR</b>');
@@ -779,10 +714,7 @@ function buildTicketHtml80mm(order){
   return html;
 }
 
-
 function buildWhatsappTextFromOrder(order){
-  // WhatsApp: texto tal cual (sin markdown pesado para que se vea igual)
-   // return "```" + buildTicketText80mm(order) + "```";
   return buildTicketText80mm(order);
 }
 
@@ -811,10 +743,9 @@ function updateCartUI(){
 
   if(floatingCartCount) floatingCartCount.textContent = String(c);
   if(floatingCartTotal) floatingCartTotal.textContent = money(t);
-    // ✅ latido solo si hay productos
+
   const fcBtn = document.getElementById('floating-cart');
   if(fcBtn) fcBtn.classList.toggle('is-empty', c === 0);
-
 }
 
 const cartItemsEl = document.getElementById('cart-items');
@@ -889,7 +820,6 @@ function chatbotWelcome(){
 }
 
 function setActiveCatBtn(cat){
-  // botones rojos del slider nuevo
   document.querySelectorAll('.cat-card__btn.category-btn').forEach(b=>{
     b.classList.toggle('is-active', b.dataset.cat === cat);
   });
@@ -911,30 +841,22 @@ function updateCategoryTitle(cat){
 function toggleCatSlider(cat){
   if(!catSliderEl) return;
 
-  // ✅ En "Todo el Menú" se muestra el slider
   if(cat === 'todo-el-menu'){
     catSliderEl.classList.remove('is-hidden');
   }else{
-    // ✅ En categorías específicas se oculta
     catSliderEl.classList.add('is-hidden');
   }
 }
-
-
-
 
 function setCategory(cat){
   currentCategory = cat;
   setActiveCatBtn(cat);
   updateCategoryTitle(cat);
-
-  // ✅ NUEVO: ocultar/mostrar slider según categoría
   toggleCatSlider(cat);
 
   if(cat === 'todo-el-menu') renderProductsAll();
   else renderProductsSingle(cat);
 }
-
 
 function jumpToCategory(cat){
   if(cat === 'todo-el-menu'){
@@ -988,7 +910,6 @@ function togglePanel(panel){
 }
 function closePanels(){
   if(menuDdPanel) menuDdPanel.classList.add('hidden');
-  
 }
 
 /* =========================
@@ -1024,14 +945,12 @@ function startCarousel(){
 document.addEventListener('click', (e)=>{
   const t = e.target;
 
-  // close modals by data-close
   const closeSel = t?.dataset?.close;
   if(closeSel){
     closeModal(closeSel);
     return;
   }
 
-  // category change
   if(t?.classList?.contains('category-btn') || t?.closest?.('.category-btn')){
     const btn = t.classList.contains('category-btn') ? t : t.closest('.category-btn');
     const cat = btn?.dataset?.cat;
@@ -1041,19 +960,13 @@ document.addEventListener('click', (e)=>{
     return;
   }
 
-    // ❤️ click en corazón (favoritos + animación)
   const heartBtn = t?.closest?.('[data-action="heart"]');
   if(heartBtn){
-    // opcional: dejarlo marcado
     heartBtn.classList.toggle('is-on');
-
-    // animación de muchos corazones
     burstHearts(heartBtn);
     return;
   }
 
-
-  // add product
   if(t?.dataset?.action === 'add'){
     try{
       const p = JSON.parse(t.dataset.product);
@@ -1083,7 +996,6 @@ document.addEventListener('click', (e)=>{
     return;
   }
 
-  // remove cart item
   if(t?.dataset?.action === 'remove'){
     const idx = Number(t.dataset.index);
     if(Number.isFinite(idx)){
@@ -1093,36 +1005,28 @@ document.addEventListener('click', (e)=>{
     return;
   }
 
-  // dropdown items -> jump
-  // dropdown items -> mostrar categoría (con cabecera)
-if(t?.classList?.contains('menu-dd-item')){
-  const cat = t.dataset.scrollcat;
-  closePanels();
+  if(t?.classList?.contains('menu-dd-item')){
+    const cat = t.dataset.scrollcat;
+    closePanels();
+    if(!cat) return;
 
-  if(!cat) return;
+    if(cat === 'todo-el-menu'){
+      setCategory('todo-el-menu');
+      scrollToMenu();
+      return;
+    }
 
-  // ✅ Si es "Todo el Menú" muestra todo
-  if(cat === 'todo-el-menu'){
-    setCategory('todo-el-menu');
+    setCategory(cat);
     scrollToMenu();
     return;
   }
 
-  // ✅ Si es una categoría: muestra solo esa categoría + cabecera
-  setCategory(cat);
-  scrollToMenu();
-  return;
-}
-
-
-  // combo buttons
   if(t?.classList?.contains('combo-btn')){
     const cat = t.dataset.scrollcat;
     if(cat) { jumpToCategory(cat); scrollToMenu(); }
     return;
   }
 
-  // clicks outside dropdown panels
   if(menuDdPanel && !menuDdPanel.classList.contains('hidden')){
     const inside = menuDdPanel.contains(t) || menuDdBtn.contains(t);
     if(!inside) menuDdPanel.classList.add('hidden');
@@ -1159,7 +1063,6 @@ document.getElementById('menu-dd-btn')?.addEventListener('click', (e)=>{
   togglePanel(menuDdPanel);
 });
 
-
 document.getElementById('menu-dd-view-cart')?.addEventListener('click', ()=>{
   closePanels();
   openModal('#cart-modal');
@@ -1171,13 +1074,11 @@ document.getElementById('view-cart-desktop')?.addEventListener('click', ()=>{
   renderCart();
 });
 
-/* Floating cart opens cart modal */
 document.getElementById('floating-cart')?.addEventListener('click', ()=>{
   openModal('#cart-modal');
   renderCart();
 });
 
-/* Cart modal close */
 document.getElementById('close-cart')?.addEventListener('click', ()=> closeModal('#cart-modal'));
 document.getElementById('close-cart-2')?.addEventListener('click', ()=> closeModal('#cart-modal'));
 
@@ -1213,19 +1114,14 @@ document.addEventListener('change', (e)=>{
 });
 
 /* Confirm add */
-
-
-
 document.getElementById('confirm-add')?.addEventListener('click', ()=>{
   if(!currentProduct) return;
 
-  // validación bebida
   if(currentRealCategory === 'ofertas-familiares' && !selectedDrink){
     showToast('En familiares debes elegir una bebida.');
     return;
   }
 
-  // bolsa obligatoria en estas categorías
   const bagRequired =
     currentRealCategory === 'ofertas-familiares' ||
     currentRealCategory === 'ofertas-dos' ||
@@ -1260,10 +1156,6 @@ document.getElementById('confirm-add')?.addEventListener('click', ()=>{
   closeOptions();
 });
 
-
-
-
-
 /* Checkout */
 document.getElementById('checkout-btn')?.addEventListener('click', ()=>{
   if(cart.length === 0){
@@ -1278,7 +1170,7 @@ function closeCheckout(){ closeModal('#checkout-modal'); }
 document.getElementById('cancel-checkout')?.addEventListener('click', closeCheckout);
 document.getElementById('cancel-checkout-2')?.addEventListener('click', closeCheckout);
 
-document.getElementById('checkout-form')?.addEventListener('submit', (e)=>{
+document.getElementById('checkout-form')?.addEventListener('submit', async (e)=>{
   e.preventDefault();
 
   if(cart.length === 0){
@@ -1286,22 +1178,14 @@ document.getElementById('checkout-form')?.addEventListener('submit', (e)=>{
     closeCheckout();
     return;
   }
-                                                   
 
+  const name = wrapText(document.getElementById('cust-name').value, 25);
+  const address = wrapText(document.getElementById('cust-address').value, 25);
+  const phone = document.getElementById('cust-phone').value.trim();
+  const comment = wrapText(document.getElementById('cust-comment').value, 25);
 
+  const ticketNumber = nextTicketNumber(); // ✅ FIX: ya no depende de orders.length
 
-
-
-
-
-  
-const name = wrapText(document.getElementById('cust-name').value, 25);
-const address = wrapText(document.getElementById('cust-address').value, 25);
-const phone = document.getElementById('cust-phone').value.trim();
-const comment = wrapText(document.getElementById('cust-comment').value, 25);
-
-
-  const ticketNumber = pad3(orders.length + 1);
   const order = {
     id: 'P' + Date.now(),
     createdAt: new Date().toISOString(),
@@ -1318,8 +1202,11 @@ const comment = wrapText(document.getElementById('cust-comment').value, 25);
     status: 'Pendiente'
   };
 
+  // ✅ mantenemos array local para admin/local
   orders.push(order);
-  saveOrders();
+
+  // ✅ FIX PRO: guardar solo este pedido en Firestore
+  await saveSingleOrder(order);
 
   const text = buildWhatsappTextFromOrder(order);
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
@@ -1332,9 +1219,6 @@ const comment = wrapText(document.getElementById('cust-comment').value, 25);
   closeCheckout();
   showToast('Pedido generado ✅ (abre WhatsApp)');
 });
-
-/* Catbar arrows (móvil: izq y der) */
-
 
 /* Chatbot */
 chatbotToggle?.addEventListener('click', ()=>{
@@ -1351,7 +1235,7 @@ document.querySelectorAll('.chip').forEach(btn=>{
 /* Year */
 document.getElementById('year').textContent = String(new Date().getFullYear());
 
-/* ✅ Enforce 30 chars por línea en checkout */
+/* ✅ Enforce wrap */
 enforceWrapLimit(document.getElementById('cust-name'), 25);
 enforceWrapLimit(document.getElementById('cust-address'), 25);
 enforceWrapLimit(document.getElementById('cust-comment'), 25);
@@ -1379,8 +1263,6 @@ window.__POLLON__ = {
   buildTicketText80mm,
   buildTicketHtml80mm,
   WHATSAPP_NUMBER
-
-
 };
 
 // ===== CATEGORÍAS SLIDER (8 dots + flechas abajo + swipe) =====
@@ -1432,7 +1314,6 @@ window.__POLLON__ = {
     const idx = clamp(Math.round(track.scrollLeft / step), 0, maxIndex);
     setActiveDot(idx);
 
-    // activar / desactivar flechas (pro)
     btnPrev.disabled = track.scrollLeft <= 2;
     btnNext.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 2);
   }
@@ -1444,16 +1325,13 @@ window.__POLLON__ = {
   btnPrev.addEventListener("click", () => scrollByCard(-1));
   btnNext.addEventListener("click", () => scrollByCard(1));
 
-  // Scroll
   track.addEventListener("scroll", () => requestAnimationFrame(updateUI));
 
-  // Drag mouse (en PC) — swipe en móvil ya funciona por overflow
   let isDown = false;
   let startX = 0;
   let startScroll = 0;
 
-    track.addEventListener("pointerdown", (e) => {
-    // ✅ Si el usuario tocó un botón (imagen o texto), NO activar drag
+  track.addEventListener("pointerdown", (e) => {
     if (e.target.closest(".category-btn")) return;
 
     isDown = true;
@@ -1462,12 +1340,11 @@ window.__POLLON__ = {
     track.setPointerCapture(e.pointerId);
   });
 
-    track.addEventListener("pointermove", (e) => {
+  track.addEventListener("pointermove", (e) => {
     if (!isDown) return;
     const dx = e.clientX - startX;
     track.scrollLeft = startScroll - dx;
   });
-
 
   track.addEventListener("pointerup", () => {
     isDown = false;
@@ -1479,11 +1356,9 @@ window.__POLLON__ = {
     updateUI();
   });
 
-  // Inicial
   buildDots();
   updateUI();
 
-  // Si cambia el tamaño (móvil ↔ tablet/pc), recalcular
   window.addEventListener("resize", () => {
     buildDots();
     updateUI();
