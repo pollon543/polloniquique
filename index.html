@@ -422,7 +422,7 @@
     </section>
 
     <!-- ADMIN OPEN -->
-    <!-- <section class="mt-5">
+     <!-- <section class="mt-5">
       <div class="admin-open">
         <div>
           <div class="font-extrabold text-lg"></div>
@@ -430,8 +430,9 @@
         </div>
         <button id="admin-open-btn" class="admin-open-btn" type="button">Ingresar</button>
       </div>
-    </section>
-  </main> -->
+    </section> -->
+    
+  </main> 
 
   <!-- FLOATING CART -->
   <!-- FLOATING CART (nuevo diseño tipo foto) -->
@@ -545,7 +546,7 @@
 
             <!-- Drinks -->
             <div id="drink-section" class="opt-block hidden">
-              <div class="opt-title">🥤 Bebida (obligatoria en familiares)</div>
+              <div class="opt-title">🥤 Elija su sabor de bebida</div>
               <div class="opt-grid">
                 <label class="opt-radio"><input type="radio" name="drink" value="Coca Cola 1.5L" /> Coca Cola</label>
                 <label class="opt-radio"><input type="radio" name="drink" value="Inca Kola 1.5L" /> Inca Kola</label>
@@ -680,6 +681,8 @@
     </div>
   </div>
 
+
+
   <!-- ADMIN PANEL MODAL -->
    <!-- ADMIN PANEL MODAL (NUEVO igual a la foto) -->
 <div id="admin-panel-modal" class="modal" role="dialog" aria-modal="true" aria-label="Panel Admin">
@@ -767,13 +770,29 @@
         <input id="flt-q" class="adminp-input" type="text" placeholder="Ej: Juan, +569..." />
       </div>
 
+      <!-- <div class="adminp-actionsbar">
+         <button class="adminp-hamb" type="button" id="admin-actions-toggle" aria-expanded="false" aria-controls="admin-actions-panel">
+          ☰ Acciones
+        </button>
+
+        <div class="adminp-actions" id="admin-actions-panel">
+         <button id="admin-copy-btn" class="adminp-btn adminp-btn-soft" type="button">📋 Copiar pedidos (Excel)</button>
+         <button id="admin-refresh-btn" class="adminp-btn adminp-btn-primary" type="button">🔄 Actualizar</button>
+         <button id="admin-clear-btn" class="adminp-btn adminp-btn-soft" type="button">✖ Limpiar filtros</button>
+         <button id="admin-pdf-btn" class="adminp-btn adminp-btn-soft" type="button">🧾 Exportar a PDF</button>
+        </div>
+      </div> -->
+
+
       <div class="adminp-actions">
         <button id="admin-copy-btn" class="adminp-btn adminp-btn-soft" type="button">📋 Copiar pedidos (Excel)</button>
         <button id="admin-refresh-btn" class="adminp-btn adminp-btn-primary" type="button">🔄 Actualizar</button>
         <button id="admin-clear-btn" class="adminp-btn adminp-btn-soft" type="button">✖ Limpiar filtros</button>
-
-        <!-- si quieres mantener PDF, déjalo visible -->
         <button id="admin-pdf-btn" class="adminp-btn adminp-btn-soft" type="button">🧾 Exportar a PDF</button>
+        <button id="enable-sound-btn" class="adminp-btn adminp-btn-soft" type="button">
+        🔔 Activar sonido
+        </button>
+
       </div>
 
       <div class="adminp-range-note">
@@ -900,6 +919,9 @@
 
 </footer>
 
+
+
+
   <!-- Firebase libs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -907,5 +929,12 @@
   <!-- App scripts -->
   <script src="js/app.js"></script>
   <script src="js/admin.js"></script>
+
+<!-- SONIDO NUEVO PEDIDO (ADMIN) -->
+  <audio id="new-order-sound" preload="auto">
+    <source src="sounds/alarma.mp3" type="audio/mpeg">
+  </audio>
+
+
 </body>
 </html>

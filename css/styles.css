@@ -735,7 +735,7 @@ body{ padding-bottom: 110px; overflow-x:hidden; }
   position: fixed;
   inset:0;
   z-index: 90;
-  background: rgba(0,0,0,.55);
+  background: rgba(0, 0, 0, 0.596);
   padding: 18px;
   align-items: center;
   justify-content: center;
@@ -744,11 +744,11 @@ body{ padding-bottom: 110px; overflow-x:hidden; }
 
 .modal-card{
   width: min(560px, 96vw);
-  background:#fff;
+  background:rgb(255, 255, 255);
   border-radius: 24px;
-  box-shadow: 0 35px 100px rgba(0,0,0,.35);
+  
   overflow:hidden;
-  border: 1px solid rgba(0,0,0,.1);
+  border: 1px solid rgba(41, 3, 255, 0.1);
 }
 .modal-card-lg{ width: min(920px, 96vw); }
 .modal-card-xl{ width: min(1080px, 96vw); }
@@ -856,23 +856,125 @@ body{ padding-bottom: 110px; overflow-x:hidden; }
 .form-textarea{ resize: vertical; white-space: pre-wrap; }
 .hint-25{ font-size: 11px; color:#6b7280; margin-top: 6px; }
 
+
+
+
+/* =========================================================
+   PROMO COMBOS: FIX PARA PC CHICO / TABLET (se ve gigante)
+   Objetivo: 1 columna + card horizontal compacta
+   ========================================================= */
+
+/* 1) En pantallas medianas: 1 columna SIEMPRE */
+@media (max-width: 1200px) and (min-width: 700px){
+  .pollon-combos{
+    grid-template-columns: 1fr !important; /* antes seguro está en 2 columnas */
+    gap: 12px !important;
+  }
+
+  /* 2) Card horizontal */
+  .pollon-combos .combo-card{
+    display: grid !important;
+    grid-template-columns: 270px 1fr !important;
+    align-items: stretch !important;
+    min-height: 160px !important;
+  }
+
+  /* 3) Imagen controlada (aquí se arregla lo “gigante”) */
+  .pollon-combos .combo-media{
+    height: 100% !important;
+    min-height: 160px !important;
+    max-height: 180px !important;
+  }
+  .pollon-combos .combo-media img{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* 4) Texto + botón compactos */
+  .pollon-combos .combo-body{
+    padding: 10px 12px !important;
+    gap: 6px !important;
+  }
+
+  .pollon-combos .combo-sticker{
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    width: fit-content !important;
+  }
+
+  .pollon-combos .combo-title{
+    font-size: 15px !important;
+    line-height: 1.1 !important;
+  }
+
+  .pollon-combos .combo-text{
+    font-size: 12.5px !important;
+    line-height: 1.3 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important; /* 2 líneas */
+    overflow: hidden !important;
+  }
+
+  .pollon-combos .combo-btn{
+    height: 34px !important;
+    padding: 0 12px !important;
+    font-size: 12.5px !important;
+    border-radius: 12px !important;
+  }
+
+  /* 5) Alinea CTA abajo para que se vea PRO */
+  .pollon-combos .combo-cta{
+    margin-top: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+  }
+}
+
+/* =========================================================
+   EXTRA: si tu PC chico es aún más angosto (tipo 800-900px)
+   ========================================================= */
+@media (max-width: 900px) and (min-width: 700px){
+  .pollon-combos .combo-card{
+    grid-template-columns: 170px 1fr !important;
+  }
+  .pollon-combos .combo-media{
+    min-height: 140px !important;
+    max-height: 160px !important;
+  }
+}
+
+
+
+
+
+
+
+
 /* Combos cards */
+
+
 .pollon-combos{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
+  padding: auto;
 }
 .combo-card{
   display:grid;
-  grid-template-columns: 1.1fr 1.4fr;
+  grid-template-columns: 2.1fr 1.8fr;
   gap: 12px;
   background:#fff;
-  border-radius: 24px;
+  border-radius: 15px;
   overflow:hidden;
-  border: 1px solid rgba(0,0,0,.08);
+  border: 1px solid rgba(240, 239, 239, 0.692);
   box-shadow: 0 25px 70px rgba(0,0,0,.10);
 }
-.combo-media{ background:#111; }
+.combo-media{ background:#721616; }
 .combo-media img{
   width:100%;
   height: 100%;
@@ -891,12 +993,15 @@ body{ padding-bottom: 110px; overflow-x:hidden; }
   border-radius: 999px;
   font-size: 12px;
 }
-.combo-sticker.alt{ background:#111; color:#fff; }
+.combo-sticker.alt{ background:#000000; color:#fff; }
 .combo-title{ margin-top:10px; font-weight: 1000; font-size: 18px; }
-.combo-text{ margin-top:6px; color:#6b7280; font-size: 13px; }
+.combo-text{ margin-top:6px; color:#202122; font-size: 13px; }
 .combo-btn{
   margin-top: 12px;
   display:inline-flex;
+
+
+
   align-self:flex-start;
   padding: 10px 14px;
   border-radius: 14px;
@@ -1109,81 +1214,7 @@ body{ padding-bottom: 110px; overflow-x:hidden; }
 }
 
 /* Chatbot */
-.chatbot-toggle{
-  position: fixed;
-  left: 16px;
-  bottom: 16px;
-  z-index: 80;
-  width: 54px;
-  height: 54px;
-  border-radius: 999px;
-  background: #111;
-  color:#fff;
-  font-size: 22px;
-  box-shadow: 0 25px 80px rgba(0,0,0,.3);
-  border:1px solid rgba(255,255,255,.12);
-}
-.chatbot-panel{
-  position: fixed;
-  left: 16px;
-  bottom: 78px;
-  z-index: 90;
-  width: min(360px, 92vw);
-  background:#fff;
-  border-radius: 24px;
-  box-shadow: 0 35px 100px rgba(0,0,0,.3);
-  border: 1px solid rgba(0,0,0,.08);
-  overflow:hidden;
-}
-.chatbot-head{
-  padding: 12px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background: linear-gradient(135deg, #111, #222);
-  color:#fff;
-}
-.chatbot-close{
-  width: 40px; height: 40px;
-  border-radius: 14px;
-  background: rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.18);
-  font-weight: 1000;
-}
-.chatbot-messages{
-  padding: 12px;
-  height: 260px;
-  overflow:auto;
-  background: #fafafa;
-}
-.cb-msg{
-  padding: 10px 12px;
-  border-radius: 18px;
-  margin-bottom: 8px;
-  max-width: 92%;
-  line-height: 1.25;
-  font-weight: 700;
-  white-space: pre-wrap;
-}
-.cb-bot{ background:#fff; border:1px solid rgba(0,0,0,.08); }
-.cb-user{ background:#111; color:#fff; margin-left:auto; }
 
-.chatbot-chips{
-  padding: 12px;
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  background:#fff;
-  border-top:1px solid rgba(0,0,0,.06);
-}
-.chip{
-  padding: 8px 10px;
-  border-radius: 999px;
-  border:1px solid rgba(0,0,0,.12);
-  background:#fff;
-  font-weight: 1000;
-}
-.chip:hover{ background:#ffe5e5; border-color: rgba(255,45,45,.25); }
 
 
 .pay-box{
@@ -1644,7 +1675,7 @@ html, body{
 }
 
 
-/*          ------------------
+
 
 /* =========================
    ❤ Corazón en cards (centrado)
@@ -2364,3 +2395,953 @@ html, body{
     grid-template-columns: 110px 1fr;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   OPTIONS MODAL (BEBIDA / BOLSA) - COMPACTO
+   ========================================= */
+
+#options-modal.modal{
+  position: fixed;
+  inset: 0;
+  display: none;              /* tu JS lo muestra */
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 9999;
+}
+
+/* si tu JS usa otra clase, agrega aquí tu selector */
+#options-modal.modal.open,
+#options-modal.modal.show,
+#options-modal.modal.active{
+  display: flex;
+}
+
+/* Tarjeta más ajustada que el carrito */
+#options-modal .modal-card.modal-card-lg{
+  width: min(94vw, 760px);
+  max-height: min(88vh, 720px);
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;            /* evita que crezca */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+#options-modal .modal-head{
+  flex: 0 0 auto;
+  padding: 12px 14px;
+}
+
+/* Body: que no estire el modal */
+#options-modal .modal-body{
+  flex: 1 1 auto;
+  padding: 12px 14px;
+  overflow: auto;              /* si es muy largo, scrollea aquí */
+}
+
+/* Grid principal (2 columnas en desktop, 1 en móvil) */
+#options-modal .modal-body .grid{
+  align-items: start;
+  gap: 12px;
+}
+
+/* Bloque info producto: más compacto */
+#options-modal #opt-product-name{
+  font-size: 1rem;
+  line-height: 1.2;
+}
+#options-modal #opt-product-desc{
+  font-size: .82rem;
+  line-height: 1.25;
+}
+
+/* Cantidad: más delgado */
+#options-modal .qty-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#options-modal .qty-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+#options-modal .qty-value{
+  min-width: 36px;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* TITULOS de secciones */
+#options-modal .opt-title{
+  font-weight: 800;
+  font-size: .92rem;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+/* ====== BOTONES DE BEBIDAS / BOLSA (opt-radio) ====== */
+
+/* El contenedor en forma de grilla compacta */
+#options-modal .opt-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columnas */
+  gap: 8px;
+}
+
+/* Cada "botón" (label) pequeño y bonito */
+#options-modal .opt-radio{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: #f8fafc;          /* claro */
+  border-radius: 12px;
+  font-size: .86rem;            /* más pequeño */
+  line-height: 1.15;
+  cursor: pointer;
+  user-select: none;
+  min-height: 38px;             /* compacto */
+  white-space: nowrap;          /* evita que se alargue en 2 líneas */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Radio más pequeño */
+#options-modal .opt-radio input[type="radio"]{
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+/* Hover suave */
+#options-modal .opt-radio:hover{
+  border-color: rgba(0,0,0,.20);
+  background: #f1f5f9;
+}
+
+/* Estado seleccionado (cuando el radio está checked) */
+#options-modal .opt-radio:has(input[type="radio"]:checked){
+  border-color: rgba(220,38,38,.45);   /* rojo suave */
+  background: rgba(220,38,38,.07);
+  font-weight: 800;
+}
+
+/* Sección bolsa: el grid igual de compacto */
+#options-modal #bag-section .opt-grid{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Acciones: botones bien visibles y alineados */
+#options-modal .modal-body .flex.gap-2.justify-end{
+  position: sticky;             /* siempre visible si hay scroll */
+  bottom: 0;
+  background: #fff;
+  padding-top: 10px;
+  margin-top: 10px;
+  z-index: 2;
+}
+
+#options-modal .btn-secondary,
+#options-modal .btn-primary{
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+/* =========================================
+   RESPONSIVE CELULAR
+   ========================================= */
+@media (max-width: 768px){
+  /* Tu clase md:grid-cols-2 pasa a 1 col en móvil, perfecto */
+  #options-modal .modal-card.modal-card-lg{
+    width: 96vw;
+    max-height: 90vh;
+    border-radius: 14px;
+  }
+
+  /* Bebidas en 2 columnas en móvil para no alargar */
+  #options-modal .opt-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Si quieres aún más compacto en teléfonos pequeños */
+  #options-modal .opt-radio{
+    font-size: .82rem;
+    padding: 8px 9px;
+    min-height: 36px;
+  }
+}
+
+@media (max-width: 380px){
+  /* En celulares MUY chicos, 1 columna para que no se corte */
+  #options-modal .opt-grid{
+    grid-template-columns: 1fr;
+  }
+  #options-modal .opt-radio{
+    white-space: normal;  /* permite 2 líneas si es necesario */
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   ADMIN PANEL MODAL (adminp-*) - FULL UI
+   (igual a la foto + responsive + scroll)
+   ========================================= */
+
+/* Overlay modal */
+#admin-panel-modal.modal{
+  position: fixed;
+  inset: 0;
+  display: none; /* tu JS lo abre */
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  z-index: 9999;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(4px);
+}
+
+/* si tu JS usa otra clase, mantenemos opciones */
+#admin-panel-modal.modal.open,
+#admin-panel-modal.modal.show,
+#admin-panel-modal.modal.active{
+  display: flex;
+}
+
+/* Card principal (cuadro blanco) */
+#admin-panel-modal .adminp-card{
+  width: min(1200px, 96vw);
+  max-height: min(92vh, 900px);
+  background: #f8f8f8;
+  border-radius: 16px;
+  border: 1px solid rgb(0, 0, 0);
+  box-shadow: 0 25px 60px rgb(85, 80, 80);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= HEADER ================= */
+#admin-panel-modal .adminp-head{
+  padding: 18px 18px 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+#admin-panel-modal .adminp-title{
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+#admin-panel-modal .adminp-icon{
+  font-size: 22px;
+  line-height: 1;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: rgba(59, 131, 246, 0.637);
+  border: 1px solid rgba(59,130,246,.18);
+  border-radius: 12px;
+}
+
+#admin-panel-modal .adminp-title-main{
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1.1;
+  color: #111827;
+}
+
+#admin-panel-modal .adminp-title-sub{
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Chips de estados (arriba derecha) */
+#admin-panel-modal .adminp-chips{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+#admin-panel-modal .adminp-chip{
+  border: 1px solid rgba(0,0,0,.08);
+  background: #fff7ed;
+  color: #9a3412;
+  padding: 6px 10px;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+}
+#admin-panel-modal .adminp-chip:hover{
+  transform: translateY(-1px);
+  filter: brightness(.98);
+}
+
+#admin-panel-modal .adminp-chip-blue{
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+#admin-panel-modal .adminp-chip-green{
+  background: #ecfdf5;
+  color: #047857;
+}
+#admin-panel-modal .adminp-chip-red{
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* ================= STATS ================= */
+#admin-panel-modal .adminp-stats{
+  padding: 0 18px 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+#admin-panel-modal .adminp-stat{
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  padding: 12px 12px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0,0,0,.05);
+}
+
+#admin-panel-modal .adminp-stat .k{
+  font-size: 11px;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: #6b7280;
+  font-weight: 800;
+}
+
+#admin-panel-modal .adminp-stat .v{
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+}
+
+#admin-panel-modal .adminp-stat-wide{
+  grid-column: span 1;
+}
+
+#admin-panel-modal #st-sales{
+  color: #111827;
+}
+#admin-panel-modal #st-rate{
+  color: #111827;
+}
+#admin-panel-modal #st-avg{
+  color: #111827;
+}
+#admin-panel-modal #st-eta{
+  color: #111827;
+}
+
+/* segunda fila (3 tarjetas) como en la foto */
+#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(3){
+  grid-column: span 2;
+}
+#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(2){
+  grid-column: span 1;
+}
+#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(1){
+  grid-column: span 1;
+}
+
+/* ================= FILTROS ================= */
+#admin-panel-modal .adminp-filters{
+  margin: 0 18px 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0,0,0,.05);
+
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+#admin-panel-modal .adminp-field{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#admin-panel-modal .adminp-label{
+  font-size: 12px;
+  font-weight: 800;
+  color: #374151;
+}
+
+#admin-panel-modal .adminp-input{
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.14);
+  padding: 0 10px;
+  outline: none;
+  font-size: 13px;
+  background: #fff;
+}
+#admin-panel-modal .adminp-input:focus{
+  border-color: rgba(59,130,246,.55);
+  box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+}
+
+/* Search ocupa más ancho */
+#admin-panel-modal .adminp-field-search{
+  grid-column: span 1;
+}
+
+/* Acciones debajo (como foto: a la derecha) */
+#admin-panel-modal .adminp-actions{
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+#admin-panel-modal .adminp-btn{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-weight: 900;
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  cursor: pointer;
+  transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+
+#admin-panel-modal .adminp-btn:hover{
+  transform: translateY(-1px);
+  filter: brightness(.99);
+  box-shadow: 0 10px 20px rgba(0,0,0,.08);
+}
+
+#admin-panel-modal .adminp-btn-soft{
+  background: #f3f4f6;
+  color: #111827;
+}
+
+#admin-panel-modal .adminp-btn-primary{
+  background: #3b82f6;
+  border-color: rgba(59,130,246,.70);
+  color: #fff;
+}
+
+/* Nota de rango */
+#admin-panel-modal .adminp-range-note{
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #6b7280;
+  padding-top: 2px;
+}
+
+/* ================= TABLA / LISTA CON SCROLL ================= */
+#admin-panel-modal .adminp-tablewrap{
+  margin: 0 18px 14px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+
+  /* CLAVE: scroll interno */
+  flex: 1 1 auto;
+  min-height: 220px;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+
+/* scrollbar bonito (opcional) */
+#admin-panel-modal .adminp-tablewrap::-webkit-scrollbar{
+  width: 10px;
+}
+#admin-panel-modal .adminp-tablewrap::-webkit-scrollbar-thumb{
+  background: rgba(0,0,0,.18);
+  border-radius: 999px;
+  border: 2px solid #fff;
+}
+#admin-panel-modal .adminp-tablewrap::-webkit-scrollbar-track{
+  background: #fff;
+}
+
+/* Tabla */
+#admin-panel-modal .adminp-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#admin-panel-modal .adminp-table tr{
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+#admin-panel-modal .adminp-table td{
+  padding: 12px 10px;
+  font-size: 13px;
+  color: #111827;
+  vertical-align: middle;
+}
+
+/* Filas tipo “cards” visual */
+#admin-panel-modal .adminp-table tr:hover{
+  background: #f9fafb;
+}
+
+/* ====== Botones dentro de cada pedido (Ver / Estado / WhatsApp / Imprimir) ====== */
+/* (Estos estilos aplican a los botones/links que tu JS mete en cada fila) */
+#admin-panel-modal .adminp-table .pill,
+#admin-panel-modal .adminp-table .badge,
+#admin-panel-modal .adminp-table .tag,
+#admin-panel-modal .adminp-table button,
+#admin-panel-modal .adminp-table a{
+  border-radius: 10px;
+}
+
+/* Si tu JS usa clases, estos te ayudan:
+   - .btn-mini, .btn, .adminp-rowbtn, etc.
+   (no rompe si no existen) */
+#admin-panel-modal .adminp-rowbtn{
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.10);
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* Badges de estado dentro de la tabla */
+#admin-panel-modal .st-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,.08);
+  white-space: nowrap;
+}
+
+#admin-panel-modal .st-pendiente{ background:#fff7ed; color:#9a3412; }
+#admin-panel-modal .st-prep{ background:#eff6ff; color:#1d4ed8; }
+#admin-panel-modal .st-entregado{ background:#ecfdf5; color:#047857; }
+#admin-panel-modal .st-cancelado{ background:#fef2f2; color:#b91c1c; }
+
+/* ================= FOOTER ================= */
+#admin-panel-modal .adminp-foot{
+  padding: 12px 18px 16px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid rgba(0,0,0,.06);
+  background: #fff;
+}
+
+#admin-panel-modal .adminp-close{
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: #111827;
+  color: #fff;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+}
+
+/* =========================================
+   RESPONSIVE (tablet / celular)
+   ========================================= */
+@media (max-width: 980px){
+  #admin-panel-modal .adminp-stats{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* los wide se acomodan */
+  #admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(3){
+    grid-column: span 2;
+  }
+
+  #admin-panel-modal .adminp-filters{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #admin-panel-modal .adminp-field-search{
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 560px){
+  #admin-panel-modal.modal{
+    padding: 10px;
+  }
+  #admin-panel-modal .adminp-card{
+    width: 98vw;
+    max-height: 94vh;
+    border-radius: 14px;
+  }
+
+  #admin-panel-modal .adminp-head{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #admin-panel-modal .adminp-chips{
+    justify-content: flex-start;
+  }
+
+  #admin-panel-modal .adminp-stats{
+    grid-template-columns: 1fr;
+  }
+
+  #admin-panel-modal .adminp-filters{
+    grid-template-columns: 1fr;
+  }
+  #admin-panel-modal .adminp-field-search{
+    grid-column: span 1;
+  }
+
+  /* tabla: más compacta */
+  #admin-panel-modal .adminp-table td{
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  /* scroll un poco más alto en móvil */
+  #admin-panel-modal .adminp-tablewrap{
+    max-height: 52vh;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ================================
+   MODAL CARRITO: tamaño fijo + scroll interno
+   ================================ */
+
+/* Fondo (si tienes overlay) */
+.modal-overlay,
+#cartModalOverlay,
+.cart-overlay {
+  padding: 14px;
+}
+
+/* Caja del modal */
+#cartModal,
+.cart-modal,
+.modal-carrito,
+.modal-content.cart,
+.cart-modal-content {
+  width: min(92vw, 720px);
+  max-height: min(86vh, 720px);     /* el modal NO crece más que esto */
+  margin: 0 auto;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;          /* clave: header / body / footer en columna */
+  overflow: hidden;                /* evita que el modal “se estire” */
+}
+
+/* Header (título “Tu carrito”) */
+#cartModal .modal-header,
+.cart-modal .modal-header,
+.modal-carrito .modal-header,
+.cart-header {
+  flex: 0 0 auto;
+  padding: 14px 16px;
+}
+
+/* ====== ZONA QUE SCROLLEA (LISTA) ====== */
+/* Cambia este selector por el contenedor REAL que envuelve los items */
+#cartItems,
+.cart-items,
+.cart-items-list,
+.modal-body .items,
+.items-list,
+.cart-body {
+  flex: 1 1 auto;                  /* toma el espacio disponible */
+  overflow-y: auto;                /* scroll vertical */
+  overflow-x: hidden;
+  padding: 10px 12px;
+  max-height: calc((var(--item-h, 78px) * 4) + 22px); /* muestra aprox 4 items */
+  scrollbar-gutter: stable;
+}
+
+/* Cada producto (fila/tarjeta) */
+.cart-item,
+.item-carrito,
+.cart-row,
+.modal-item {
+  min-height: var(--item-h, 78px); /* ayuda a que “4 items” sea consistente */
+  border-radius: 12px;
+}
+
+/* Footer (Total + botones) fijo abajo */
+#cartModal .modal-footer,
+.cart-modal .modal-footer,
+.cart-footer,
+.modal-carrito .modal-footer {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0,0,0,.08);
+  z-index: 2;
+}
+
+/* Total en una línea, bien alineado */
+.cart-total,
+.total-row,
+.modal-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+}
+
+/* Botones del footer que NO se achican feo */
+.cart-actions,
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cart-actions button,
+.modal-actions button,
+.btn-whatsapp,
+.btn-seguir,
+.btn-primary,
+.btn-secondary {
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* ================================
+   RESPONSIVE (CELULAR)
+   ================================ */
+@media (max-width: 520px) {
+  #cartModal,
+  .cart-modal,
+  .modal-carrito,
+  .modal-content.cart,
+  .cart-modal-content {
+    width: 96vw;
+    max-height: 88vh;
+    border-radius: 14px;
+  }
+
+  /* Lista: un poco más compacta en móvil */
+  #cartItems,
+  .cart-items,
+  .cart-items-list,
+  .modal-body .items,
+  .items-list,
+  .cart-body {
+    --item-h: 70px;
+    max-height: calc((var(--item-h) * 4) + 18px);
+    padding: 8px 10px;
+  }
+
+  /* Botones en columna en móvil */
+  .cart-actions,
+  .modal-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+
+
+
+/* =========================================
+   CARRITO MODAL (tu HTML): fijo + scroll 4 items
+   ========================================= */
+
+/* 1) El overlay / modal centrado */
+#cart-modal.modal{
+  position: fixed;
+  inset: 0;
+  display: none;              /* tu JS lo mostrará */
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  z-index: 9999;
+}
+
+/* si tu JS usa .open / .show / .active cambia el selector según tu código */
+#cart-modal.modal.open,
+#cart-modal.modal.show,
+#cart-modal.modal.active{
+  display: flex;
+}
+
+/* 2) La tarjeta del modal: NO crece más */
+#cart-modal .modal-card.modal-card-lg{
+  width: min(92vw, 760px);
+  max-height: min(86vh, 720px);
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;           /* clave: evita que se estire */
+  display: flex;
+  flex-direction: column;     /* head / body / foot en columna */
+}
+
+/* 3) Header fijo */
+#cart-modal .modal-head{
+  flex: 0 0 auto;
+  padding: 14px 16px;
+}
+
+/* 4) Body: ocupa el espacio disponible */
+#cart-modal .modal-body{
+  flex: 1 1 auto;
+  padding: 12px 14px;
+  overflow: hidden;           /* el scroll NO es aquí, es en #cart-items */
+}
+
+/* 5) SOLO la lista scrollea (muestra aprox 4 items) */
+#cart-items{
+  --item-h: 76px; /* ajusta si tus filas son más altas/bajas */
+  max-height: calc((var(--item-h) * 4) + 18px); /* ~4 productos visibles */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;         /* para que no tape la scrollbar */
+  scrollbar-gutter: stable;
+}
+
+/* Si tus items tienen una clase, esto ayuda a que “4 items” sea exacto.
+   (Si no existe, no pasa nada.) */
+#cart-items .cart-item,
+#cart-items .item,
+#cart-items > div{
+  min-height: var(--item-h);
+}
+
+/* 6) Total dentro del body: se queda pegado abajo del body (no se pierde) */
+#cart-modal .modal-body > .mt-4{
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+/* 7) Footer fijo abajo, siempre visible */
+#cart-modal .modal-foot{
+  flex: 0 0 auto;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Botones bien ajustados */
+#cart-modal .modal-foot .btn-secondary,
+#cart-modal .modal-foot .btn-primary{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* =========================================
+   RESPONSIVE CELULAR
+   ========================================= */
+@media (max-width: 520px){
+  #cart-modal .modal-card.modal-card-lg{
+    width: 96vw;
+    max-height: 88vh;
+    border-radius: 14px;
+  }
+
+  #cart-items{
+    --item-h: 70px;
+    max-height: calc((var(--item-h) * 4) + 16px);
+  }
+
+  /* Botones en columna en móvil */
+  #cart-modal .modal-foot{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+
+
+

@@ -390,3 +390,54 @@ function renderAdmin(){
   renderAdminTable();
 }
 window.renderAdmin = renderAdmin;
+
+
+
+
+
+
+// =========================================================
+// 🔔 TIMBRE NUEVO PEDIDO (solo si admin está abierto)
+// =========================================================
+let soundEnabled = false;
+
+function setupNewOrderSoundUI(){
+  const btn = document.getElementById("enable-sound-btn");
+  const audio = document.getElementById("new-order-sound");
+  if(!btn || !audio) return;
+
+  btn.addEventListener("click", async ()=>{
+    try{
+      // Desbloquear audio (Chrome/Android exige click)
+      audio.currentTime = 0;
+      await audio.play();
+      audio.pause();
+      audio.currentTime = 0;
+
+      soundEnabled = true;
+      btn.textContent = "🔔 Sonido activado";
+    }catch(e){
+      alert("El navegador bloqueó el sonido. Haz clic otra vez y revisa volumen.");
+    }
+  });
+}
+
+function playNewOrderSound(){
+  if(!soundEnabled) return;
+  // ✅ solo si el panel admin está abierto
+  if(typeof window.isAdminOpen === "function" && !window.isAdminOpen()) return;
+
+  const audio = document.getElementById("new-order-sound");
+  if(!audio) return;
+
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
+}
+
+// ✅ Esta función la llamará app.js cuando llegue un pedido nuevo
+window.onNewOrderArrived = function(){
+  playNewOrderSound();
+};
+
+// activar el botón desde que carga la página
+setupNewOrderSoundUI();

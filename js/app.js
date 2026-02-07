@@ -16,6 +16,7 @@ const ORDERS_KEY = 'pollon_orders_local_v1';
 let db = null;
 let ordersRef = null;
 let firestoreReady = false;
+ let ordersListenerReady = false;
 
 /* ✅ fallback seguro (evita crash si Firestore llama antes que admin.js) */
 function isAdminOpen(){
@@ -25,7 +26,7 @@ window.isAdminOpen = window.isAdminOpen || isAdminOpen;
 
 function initOrdersBackend(){
   try{
-     const firebaseConfig = {
+    const firebaseConfig = {
     apiKey: "AIzaSyBVvgyAec0TJTSVILIkcW03yDBINLuYhNY",
     authDomain: "pollonbd01.firebaseapp.com",
     databaseURL: "https://pollonbd01-default-rtdb.firebaseio.com",
@@ -34,10 +35,9 @@ function initOrdersBackend(){
     messagingSenderId: "341052794357",
     appId: "1:341052794357:web:f9617d9e97103211dfacbc",
     measurementId: "G-WX88J5P126"
-  };
+ };
 
 
-     
     const looksPlaceholder = Object.values(firebaseConfig).some(v => String(v).includes("REEMPLAZA"));
     if(looksPlaceholder){
       console.warn('[Firebase] Config placeholder: usando localStorage.');
@@ -45,20 +45,56 @@ function initOrdersBackend(){
       return;
     }
 
+    // firebase.initializeApp(firebaseConfig);
+    if(!firebase.apps || !firebase.apps.length){
     firebase.initializeApp(firebaseConfig);
+   }
+
     db = firebase.firestore();
     ordersRef = db.collection(ORDERS_PATH);
     firestoreReady = true;
 
-    ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
-      orders = [];
-      snap.forEach(doc => orders.push(doc.data()));
-      orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
 
-      if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
-        if (typeof window.renderAdmin === 'function') window.renderAdmin();
-      }
+
+
+ ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
+
+  // ✅ detectar si llegó un pedido nuevo (solo después de la primera carga)
+  let hasNew = false;
+  if(ordersListenerReady){
+    snap.docChanges().forEach((ch)=>{
+      if(ch.type === "added") hasNew = true;
     });
+  }
+  ordersListenerReady = true;
+
+  // ✅ tu lógica actual (igual)
+  orders = [];
+  snap.forEach(doc => orders.push(doc.data()));
+  orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
+
+  // ✅ refrescar admin si está abierto
+  if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
+    if (typeof window.renderAdmin === 'function') window.renderAdmin();
+
+    // ✅ SOLO si admin está abierto, suena timbre cuando hay pedido nuevo
+    if(hasNew && typeof window.onNewOrderArrived === "function"){
+      window.onNewOrderArrived();
+    }
+  }
+
+ });
+
+
+    // ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
+    //   orders = [];
+    //   snap.forEach(doc => orders.push(doc.data()));
+    //   orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
+
+    //   if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
+    //     if (typeof window.renderAdmin === 'function') window.renderAdmin();
+    //   }
+    // });
 
   }catch(err){
     console.warn('[Firebase] Falló init, usando localStorage:', err);
@@ -570,8 +606,8 @@ function paintBagOptions(){
     currentRealCategory === 'platos-extras';
 
   if(bagRequired){
-    bagOptions.appendChild(mk('add', 'Agregar bolsa (obligatorio)'));
-    bagOptions.appendChild(mk('none', 'No (no disponible)', true));
+    bagOptions.appendChild(mk('add', 'Agregar bolsa'));
+    // bagOptions.appendChild(mk('none', 'No (no disponible)', true));
   }else{
     bagOptions.appendChild(mk('add', 'Agregar bolsa (opcional)'));
     bagOptions.appendChild(mk('none', 'No, gracias'));
