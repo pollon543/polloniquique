@@ -2,7 +2,16 @@
   --red1:#b30000;
   --red2:#ff2d2d;
   --dark:#0b0b0f;
-  --header-height: 76px; /* altura del header para padding del body */
+  --header-height: 76px;
+  --content-max: 1280px;
+  --content-pad: 16px;
+  --section-gap: 24px;
+}
+@media (min-width: 640px){
+  :root{ --content-pad: 20px; }
+}
+@media (min-width: 1024px){
+  :root{ --content-pad: 24px; }
 }
 
 *{ box-sizing:border-box; }
@@ -16,7 +25,18 @@ html, body{
 }
 body{
   padding-bottom: 110px;
-  padding-top: var(--header-height); /* espacio para el header fijo */
+  padding-top: var(--header-height);
+}
+
+/* Contenedor principal: alineación igual en todas las pantallas */
+main#ofertas,
+main.mx-auto{
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--content-pad);
+  padding-right: var(--content-pad);
+  box-sizing: border-box;
 }
 
 /* header gradient aquiles */
@@ -309,9 +329,17 @@ body > header .header-gradient{
 .btn-secondary:hover{ transform: translateY(-1px); background:#f6f6f6; }
 
 /* Hero + carousel fade PRO */
+/* Secciones del main: ancho consistente y autoajustable */
+main#ofertas > section{
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 .hero{
   padding-top: 0;
   margin-bottom: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .hero-card{
@@ -336,10 +364,11 @@ body > header .header-gradient{
 
 .carousel-fade{
   position: relative;
-  width:100%;
-  height: clamp(210px, 32vw, 420px);
-  background:#111;
-  overflow:hidden;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(200px, 35vw, 400px);
+  background: #111;
+  overflow: hidden;
 }
 .carousel-fade img{
   position:absolute;
@@ -967,89 +996,32 @@ body > header .header-gradient{
    Objetivo: 1 columna + card horizontal compacta
    ========================================================= */
 
-/* 1) En pantallas medianas: 1 columna SIEMPRE */
-@media (max-width: 1200px) and (min-width: 700px){
+/* Combos: tablet y PC pequeño – 1 columna, card horizontal */
+@media (max-width: 900px){
   .pollon-combos{
-    grid-template-columns: 1fr !important; /* antes seguro está en 2 columnas */
-    gap: 12px !important;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
-
-  /* 2) Card horizontal */
   .pollon-combos .combo-card{
-    display: grid !important;
-    grid-template-columns: 270px 1fr !important;
-    align-items: stretch !important;
-    min-height: 160px !important;
+    grid-template-columns: minmax(140px, 200px) 1fr;
+    align-items: stretch;
   }
 
   /* 3) Imagen controlada (aquí se arregla lo “gigante”) */
   .pollon-combos .combo-media{
-    height: 100% !important;
-    min-height: 160px !important;
-    max-height: 180px !important;
+    aspect-ratio: 1;
+    min-height: 140px;
   }
   .pollon-combos .combo-media img{
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  /* 4) Texto + botón compactos */
-  .pollon-combos .combo-body{
-    padding: 10px 12px !important;
-    gap: 6px !important;
-  }
-
-  .pollon-combos .combo-sticker{
-    font-size: 11px !important;
-    padding: 6px 10px !important;
-    border-radius: 999px !important;
-    width: fit-content !important;
-  }
-
-  .pollon-combos .combo-title{
-    font-size: 15px !important;
-    line-height: 1.1 !important;
-  }
-
-  .pollon-combos .combo-text{
-    font-size: 12.5px !important;
-    line-height: 1.3 !important;
-    display: -webkit-box !important;
-    -webkit-box-orient: vertical !important;
-    -webkit-line-clamp: 3 !important;
-    line-clamp: 3 !important;
-    overflow: hidden !important;
-  }
-
-  .pollon-combos .combo-btn{
-    height: 34px !important;
-    padding: 0 12px !important;
-    font-size: 12.5px !important;
-    border-radius: 12px !important;
-  }
-
-  /* 5) Alinea CTA abajo para que se vea PRO */
-  .pollon-combos .combo-cta{
-    margin-top: auto !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 10px !important;
-  }
-}
-
-/* =========================================================
-   EXTRA: si tu PC chico es aún más angosto (tipo 800-900px)
-   ========================================================= */
-@media (max-width: 900px) and (min-width: 700px){
-  .pollon-combos .combo-card{
-    grid-template-columns: 170px 1fr !important;
-  }
-  .pollon-combos .combo-media{
-    min-height: 140px !important;
-    max-height: 160px !important;
-  }
+  .pollon-combos .combo-body{ padding: 12px 14px; }
+  .pollon-combos .combo-title{ font-size: 16px; }
+  .pollon-combos .combo-text{ -webkit-line-clamp: 2; line-clamp: 2; font-size: 12px; }
+  .pollon-combos .combo-cta{ margin-top: auto; }
 }
 
 
@@ -1062,31 +1034,47 @@ body > header .header-gradient{
 /* Combos cards */
 
 
+/* Combos: grid adaptable, imágenes autoajustables, mismos tamaños */
 .pollon-combos{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
 }
 .combo-card{
-  display:grid;
-  grid-template-columns: 2.1fr 1.8fr;
-  gap: 12px;
-  background:#fff;
-  border-radius: 15px;
-  overflow:hidden;
-  border: 1px solid rgba(240, 239, 239, 0.692);
-  box-shadow: 0 25px 70px rgba(0,0,0,.10);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 12px 40px rgba(0,0,0,.08);
+  min-width: 0;
+  max-width: 100%;
 }
-.combo-media{ background:#721616; }
+.combo-media{
+  background: #721616;
+  aspect-ratio: 4 / 3;
+  min-height: 0;
+  overflow: hidden;
+}
 .combo-media img{
-  width:100%;
+  width: 100%;
   height: 100%;
-  min-height: 200px;
   object-fit: cover;
-  display:block;
+  object-position: center;
+  display: block;
 }
-.combo-body{ padding: 14px; display:flex; flex-direction:column; justify-content:center; }
+.combo-body{
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
 .combo-sticker{
   display:inline-flex;
   align-self:flex-start;
@@ -1098,8 +1086,18 @@ body > header .header-gradient{
   font-size: 12px;
 }
 .combo-sticker.alt{ background:#000000; color:#fff; }
-.combo-title{ margin-top:10px; font-weight: 1000; font-size: 18px; }
-.combo-text{ margin-top:6px; color:#202122; font-size: 13px; }
+.combo-title{ margin-top: 8px; font-weight: 1000; font-size: 17px; line-height: 1.25; }
+.combo-text{
+  margin-top: 6px;
+  color: #202122;
+  font-size: 13px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
 .combo-btn{
   margin-top: 12px;
   display:inline-flex;
@@ -1181,24 +1179,32 @@ body > header .header-gradient{
   border-radius: 24px;
   padding: 16px;
   border: 1px solid rgba(0,0,0,.06);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .location-head{ margin-bottom: 12px; }
 .location-card{
-  display:grid;
+  display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 12px;
+  gap: 16px;
   background: linear-gradient(135deg, rgba(140,0,0,1), rgba(255,45,45,1));
-  border-radius: 24px;
-  overflow:hidden;
-  box-shadow: 0 25px 70px rgba(0,0,0,.18);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+  width: 100%;
+  min-width: 0;
+}
+.location-map{
+  min-width: 0;
 }
 .location-map iframe{
-  width:100%;
-  height: 320px;
-  border:0;
-  display:block;
+  width: 100%;
+  height: clamp(240px, 40vh, 320px);
+  border: 0;
+  display: block;
 }
-.location-info{ padding: 16px; color:#fff; }
+.location-info{ padding: 16px 20px; color: #fff; min-width: 0; }
 .loc-name{ font-weight: 1000; font-size: 20px; }
 .loc-line{ margin-top: 8px; display:flex; gap:10px; align-items:flex-start; }
 .loc-link{ color:#fff; font-weight: 1000; text-decoration: underline; }
@@ -1344,15 +1350,21 @@ body > header .header-gradient{
 }
 .social-btn:hover{ background: rgba(255,45,45,.22); }
 
-/* Responsive tweaks */
+/* Responsive: location, admin (combos ya tienen su media arriba) */
 @media (max-width: 980px){
-  .pollon-combos{ grid-template-columns: 1fr; }
-  .combo-card{ grid-template-columns: 1fr; }
-  .combo-media img{ min-height: 220px; }
   .location-card{ grid-template-columns: 1fr; }
-  .location-map iframe{ height: 300px; }
+  .location-map iframe{ height: clamp(240px, 45vh, 320px); }
   .admin-stats{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   .admin-filters{ grid-template-columns: 1fr 1fr; }
+}
+/* Combos en móvil: apilados (imagen arriba, cuerpo abajo) */
+@media (max-width: 640px){
+  .pollon-combos{ grid-template-columns: 1fr; gap: 16px; }
+  .combo-card{ grid-template-columns: 1fr; }
+  .combo-media{ aspect-ratio: 16 / 10; min-height: 0; }
+  .combo-body{ padding: 12px 14px; }
+  .combo-title{ font-size: 15px; }
+  .combo-text{ -webkit-line-clamp: 2; line-clamp: 2; font-size: 12px; }
 }
 
 
@@ -1377,11 +1389,13 @@ body > header .header-gradient{
   margin-top: 16px;
   margin-bottom: 12px;
   font-weight: 1000;
-  font-size: 18px;        /* ✅ más grande */
+  font-size: 18px;
   color: #111827;
   display: flex;
   align-items: center;
-  gap: 10px;  
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ✅ Cuando el slider se oculta, baja un poco la cabecera */
@@ -3451,17 +3465,11 @@ body > header .header-gradient{
   .pprice{ font-size: 13px; }
 }
 
-/* Location: mapa e info apilados y legibles */
+/* Location: móvil apilado, iframe autoajustable */
 @media (max-width: 640px){
-  .location-card{
-    grid-template-columns: 1fr;
-  }
-  .location-map iframe{
-    height: 260px;
-  }
-  .location-info{
-    padding: 14px;
-  }
+  .location-card{ grid-template-columns: 1fr; }
+  .location-map iframe{ height: clamp(220px, 45vw, 280px); }
+  .location-info{ padding: 14px 16px; }
 }
 
 /* Chatbot en móvil */
