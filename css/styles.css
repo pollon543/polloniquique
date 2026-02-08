@@ -15,7 +15,7 @@ html, body{
 }
 body{ padding-bottom: 110px; }
 
-/* header gradient */
+/* header gradient aquiles */
 .header-gradient{
   background: linear-gradient(135deg, rgba(140,0,0,1) 0%, rgb(206, 2, 2) 55%, rgb(211, 3, 3) 100%);
 }
