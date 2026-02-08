@@ -2,6 +2,7 @@
   --red1:#b30000;
   --red2:#ff2d2d;
   --dark:#0b0b0f;
+  --header-height: 76px; /* altura del header para padding del body */
 }
 
 *{ box-sizing:border-box; }
@@ -13,28 +14,33 @@ html, body{
   overflow-x: hidden;
   font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 }
-body{ padding-bottom: 110px; }
+body{
+  padding-bottom: 110px;
+  padding-top: var(--header-height); /* espacio para el header fijo */
+}
 
 /* header gradient aquiles */
 .header-gradient{
   background: linear-gradient(135deg, rgba(140,0,0,1) 0%, rgb(206, 2, 2) 55%, rgb(211, 3, 3) 100%);
 }
 
-/* ✅ Header fijo al hacer scroll (estático, siempre visible) */
+/* ✅ Header siempre visible arriba (position: fixed; no se va al deslizar) */
 body > header{
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
   width: 100%;
-  min-height: 0;
-  flex-shrink: 0;
+  min-height: var(--header-height);
   box-shadow: 0 4px 20px rgba(0,0,0,.2);
   isolation: isolate;
 }
 body > header .header-gradient{
-  min-height: 1px;
+  min-height: var(--header-height);
+}
+@media (max-width: 639px){
+  :root{ --header-height: 84px; }
 }
 
 /* ✅ Header layout súper alineado */
