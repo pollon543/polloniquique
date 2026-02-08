@@ -1034,7 +1034,7 @@ main#ofertas > section{
 /* Combos cards */
 
 
-/* Combos: grid adaptable, imágenes autoajustables, mismos tamaños */
+/* Combos: grid adaptable, imágenes autoajustables */
 .pollon-combos{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
@@ -1043,6 +1043,37 @@ main#ofertas > section{
   width: 100%;
   max-width: 100%;
 }
+
+/* PC: 3 columnas fijas, misma altura por fila, bien alineadas */
+@media (min-width: 901px){
+  .pollon-combos{
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+  .pollon-combos .combo-card{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    min-height: 0;
+    height: 100%;
+  }
+  .pollon-combos .combo-media{
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 160px;
+  }
+  .pollon-combos .combo-body{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 16px 18px;
+  }
+  .pollon-combos .combo-cta{
+    margin-top: auto;
+  }
+}
+
 .combo-card{
   display: grid;
   grid-template-columns: 1fr 1fr;
