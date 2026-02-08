@@ -24,10 +24,11 @@ body{
   background: linear-gradient(135deg, rgba(140,0,0,1) 0%, rgb(206, 2, 2) 55%, rgb(211, 3, 3) 100%);
 }
 
-/* ✅ Header siempre visible arriba (position: fixed; no se va al deslizar) */
-body > header{
-  position: fixed;
-  top: 0;
+/* ✅ Cabecera fija: solo el header se queda arriba al deslizar; el resto de la página se mueve normal */
+body > header,
+body > header.header-gradient{
+  position: fixed !important;
+  top: 0 !important;
   left: 0;
   right: 0;
   z-index: 50;
