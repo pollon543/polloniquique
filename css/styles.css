@@ -547,7 +547,7 @@ body{ padding-bottom: 110px; }
   overflow: hidden;
 }
 
-/* Carril con scroll horizontal táctil (deslizar con el dedo) */
+/* Carril: scroll horizontal, arrastre con mouse o dedo desde imagen/cualquier parte */
 .cat-track{
   display: grid;
   grid-auto-flow: column;
@@ -564,6 +564,16 @@ body{ padding-bottom: 110px; }
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cat-track:active{
+  cursor: grabbing;
+}
+.cat-track.cat-track--grabbing{
+  cursor: grabbing;
+  scroll-behavior: auto;
 }
 .cat-track::-webkit-scrollbar{
   height: 0;
@@ -592,17 +602,21 @@ body{ padding-bottom: 110px; }
   aspect-ratio: 1 / 1;
   border: none;
   padding: 0;
-  cursor: pointer;
+  cursor: grab;
   flex-shrink: 0;
+  touch-action: pan-x;
+}
+.cat-track--grabbing .cat-card__img{
+  cursor: grabbing;
 }
 .cat-card__img img{
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
-/* Botón rojo */
 /* Botón de categoría bajo la imagen */
 .cat-card__btn{
   width: 100%;
@@ -618,6 +632,10 @@ body{ padding-bottom: 110px; }
   transition: color .15s ease, background .15s ease;
   flex-shrink: 0;
   text-align: center;
+  touch-action: pan-x;
+}
+.cat-track--grabbing .cat-card__btn{
+  cursor: grabbing;
 }
 
 /* ✅ Efecto hover: texto rojo + línea abajo */

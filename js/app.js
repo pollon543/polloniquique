@@ -1328,34 +1328,79 @@ window.__POLLON__ = {
 
   track.addEventListener("scroll", () => requestAnimationFrame(updateUI));
 
+  /* Arrastre con mouse o dedo desde cualquier parte (imagen, texto, card). Umbral para no bloquear clic en categoría. */
+  const DRAG_THRESHOLD = 10;
   let isDown = false;
+  let dragMode = false;
   let startX = 0;
+  let startY = 0;
   let startScroll = 0;
+  let capturedPointerId = null;
+  let didDrag = false;
 
   track.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".category-btn")) return;
-
     isDown = true;
+    dragMode = false;
     startX = e.clientX;
+    startY = e.clientY;
     startScroll = track.scrollLeft;
-    track.setPointerCapture(e.pointerId);
+    capturedPointerId = null;
+    didDrag = false;
+    track.classList.remove("cat-track--grabbing");
   });
 
   track.addEventListener("pointermove", (e) => {
     if (!isDown) return;
-    const dx = e.clientX - startX;
-    track.scrollLeft = startScroll - dx;
-  });
+    if (!dragMode) {
+      const dx = Math.abs(e.clientX - startX);
+      const dy = Math.abs(e.clientY - startY);
+      if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
+        dragMode = true;
+        didDrag = true;
+        capturedPointerId = e.pointerId;
+        track.setPointerCapture(e.pointerId);
+        track.classList.add("cat-track--grabbing");
+        startX = e.clientX;
+        startScroll = track.scrollLeft;
+      }
+    }
+    if (dragMode) {
+      e.preventDefault();
+      const dx = e.clientX - startX;
+      track.scrollLeft = startScroll - dx;
+    }
+  }, { passive: false });
 
-  track.addEventListener("pointerup", () => {
+  track.addEventListener("pointerup", (e) => {
+    if (dragMode && capturedPointerId != null) {
+      try { track.releasePointerCapture(capturedPointerId); } catch (_) {}
+      capturedPointerId = null;
+    }
     isDown = false;
+    dragMode = false;
+    track.classList.remove("cat-track--grabbing");
     updateUI();
   });
 
-  track.addEventListener("pointercancel", () => {
+  track.addEventListener("pointercancel", (e) => {
+    if (dragMode && capturedPointerId != null) {
+      try { track.releasePointerCapture(capturedPointerId); } catch (_) {}
+      capturedPointerId = null;
+    }
     isDown = false;
+    dragMode = false;
+    track.classList.remove("cat-track--grabbing");
     updateUI();
   });
+
+  /* Evitar que al soltar después de arrastrar se dispare el clic del botón de categoría */
+  track.addEventListener("click", (e) => {
+    if (didDrag) {
+      e.preventDefault();
+      e.stopPropagation();
+      didDrag = false;
+    }
+  }, true);
 
   buildDots();
   updateUI();
