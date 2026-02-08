@@ -48,30 +48,33 @@ function isAdminOpen(){
 window.isAdminOpen = isAdminOpen;
 
 adminOpenBtn?.addEventListener('click', ()=>{
-  adminPassword.value = '';
-  adminLoginError.classList.add('hidden');
+  if (adminPassword) adminPassword.value = '';
+  adminLoginError?.classList.add('hidden');
   openModal('#admin-login-modal');
 });
 
 adminLoginBtn?.addEventListener('click', ()=>{
-  const pass = (adminPassword.value || '').trim();
+  const pass = (adminPassword?.value || '').trim();
   if(pass !== ADMIN_PASSWORD){
-    adminLoginError.textContent = 'Contraseña incorrecta.';
-    adminLoginError.classList.remove('hidden');
+    if (adminLoginError) {
+      adminLoginError.textContent = 'Contraseña incorrecta.';
+      adminLoginError.classList.remove('hidden');
+    }
     return;
   }
   closeModal('#admin-login-modal');
   openModal('#admin-panel-modal');
+  // Lista y estadísticas actuales (Firestore ya tiene los datos vía listener en app.js)
   renderAdmin();
 });
 
 refreshBtn?.addEventListener('click', renderAdmin);
 
 clearBtn?.addEventListener('click', ()=>{
-  fltFrom.value = '';
-  fltTo.value = '';
-  fltStatus.value = '';
-  fltQ.value = '';
+  if (fltFrom) fltFrom.value = '';
+  if (fltTo) fltTo.value = '';
+  if (fltStatus) fltStatus.value = '';
+  if (fltQ) fltQ.value = '';
   renderAdmin();
 });
 
@@ -84,7 +87,7 @@ document.querySelectorAll('.adminp-chip').forEach(btn=>{
     btn.classList.add('is-on');
 
     // aplicar filtro real
-    fltStatus.value = st;
+    if (fltStatus) fltStatus.value = st;
     renderAdmin();
   });
 });
@@ -118,11 +121,12 @@ copyBtn?.addEventListener('click', async ()=>{
 pdfBtn?.addEventListener('click', ()=>{
   const filtered = getFilteredOrders();
   const w = window.open('', '_blank');
+  const moneyFn = window.__POLLON__?.money || (v => String(v));
   const rowsHtml = filtered.map(o=>{
     const fecha = new Date(o.createdAt).toLocaleString('es-CL');
     const name = (o.customer?.name || '').replaceAll('\n','<br/>');
     const phone = (o.customer?.phone || '');
-    const total = window.__POLLON__.money(o.total || 0);
+    const total = moneyFn(o.total || 0);
     const st = (o.status || 'Pendiente');
     return `
       <tr>
@@ -194,10 +198,10 @@ function parseDateOnly(isoString){
 
 function getFilteredOrders(){
   const orders = window.__POLLON__?.orders?.() || [];
-  const from = fltFrom.value;
-  const to = fltTo.value;
-  const st = fltStatus.value;
-  const q = (fltQ.value || '').trim().toLowerCase();
+  const from = fltFrom?.value ?? '';
+  const to = fltTo?.value ?? '';
+  const st = fltStatus?.value ?? '';
+  const q = (fltQ?.value || '').trim().toLowerCase();
 
   return orders.filter(o=>{
     const day = parseDateOnly(o.createdAt);
@@ -221,7 +225,8 @@ function cycleStatus(cur){
 }
 
 function renderStats(){
-  const all = window.__POLLON__?.orders?.() || [];
+  const pollon = window.__POLLON__;
+  const all = pollon?.orders?.() || [];
   const today = todayISO();
 
   const todayOrders = all.filter(o => parseDateOnly(o.createdAt) === today);
@@ -230,22 +235,23 @@ function renderStats(){
   const pending = all.filter(o => (o.status || '') !== 'Entregado' && (o.status || '') !== 'Cancelado').length;
   const delivered = all.filter(o => (o.status || '') === 'Entregado').length;
 
-  stTotal.textContent = String(all.length);
-  stToday.textContent = String(todayOrders.length);
-  stSales.textContent = window.__POLLON__.money(todaySales);
-  stPending.textContent = String(pending);
+  if (stTotal) stTotal.textContent = String(all.length);
+  if (stToday) stToday.textContent = String(todayOrders.length);
+  if (stSales) stSales.textContent = pollon ? pollon.money(todaySales) : '$0';
+  if (stPending) stPending.textContent = String(pending);
 
   const rate = all.length ? Math.round((delivered / all.length) * 100) : 0;
-  stRate.textContent = `${rate}%`;
+  if (stRate) stRate.textContent = `${rate}%`;
 
   const avg = all.length ? Math.round(all.reduce((acc,o)=> acc+(o.total||0),0) / all.length) : 0;
-  stAvg.textContent = window.__POLLON__.money(avg);
+  if (stAvg) stAvg.textContent = pollon ? pollon.money(avg) : '$0';
 
-  stEta.textContent = '35–50 min';
+  if (stEta) stEta.textContent = '35–50 min';
 }
 
 function printTicket80mm(order){
-  const ticketHtml = window.__POLLON__.buildTicketHtml80mm(order);
+  const ticketHtml = window.__POLLON__?.buildTicketHtml80mm?.(order) ?? '';
+  if (!ticketHtml) return;
 
   const w = window.open('', '_blank');
   w.document.write(`
@@ -303,13 +309,14 @@ function renderAdminTable(){
     return;
   }
 
+  const pollon = window.__POLLON__;
   filtered.forEach(o=>{
     const tr = document.createElement('tr');
     tr.className = 'adminp-row';
 
     const name = (o.customer?.name || '').replaceAll('\n',' ');
     const phone = o.customer?.phone || '';
-    const total = window.__POLLON__.money(o.total || 0);
+    const total = pollon ? pollon.money(o.total || 0) : String(o.total || 0);
     const st = o.status || 'Pendiente';
     const badgeCls = statusBadgeClass(st);
     const fecha = new Date(o.createdAt).toLocaleString('es-CL');
@@ -336,7 +343,7 @@ function renderAdminTable(){
     btnView.type = 'button';
     btnView.textContent = 'Ver';
     btnView.addEventListener('click', ()=>{
-      const text = window.__POLLON__.buildWhatsappTextFromOrder(o);
+      const text = window.__POLLON__?.buildWhatsappTextFromOrder?.(o) ?? JSON.stringify(o);
       alert(text);
     });
 
@@ -345,9 +352,9 @@ function renderAdminTable(){
     btnStatus.type = 'button';
     btnStatus.textContent = 'Estado';
     btnStatus.addEventListener('click', ()=>{
-      const all = window.__POLLON__.orders();
+      const all = window.__POLLON__?.orders?.() ?? [];
       const idx = all.findIndex(x => x.id === o.id);
-      if(idx >= 0){
+      if(idx >= 0 && window.__POLLON__){
         all[idx].status = cycleStatus(all[idx].status || 'Pendiente');
         window.__POLLON__.saveOrders();
         renderAdmin();
@@ -359,8 +366,9 @@ function renderAdminTable(){
     btnWa.type = 'button';
     btnWa.textContent = 'WhatsApp';
     btnWa.addEventListener('click', ()=>{
+      const num = window.__POLLON__?.WHATSAPP_NUMBER || '';
       const msg = encodeURIComponent(`Hola ${name || ''}, sobre tu pedido Ticket ${o.ticketNumber}.`);
-      window.open(`https://wa.me/${window.__POLLON__.WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+      if (num) window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
     });
 
     const btnPrint = document.createElement('button');
@@ -368,7 +376,7 @@ function renderAdminTable(){
     btnPrint.type = 'button';
     btnPrint.textContent = 'Imprimir';
     btnPrint.addEventListener('click', ()=>{
-      printTicket80mm(o);
+      if (window.__POLLON__?.buildTicketHtml80mm) printTicket80mm(o);
     });
 
     actionsWrap.appendChild(btnView);
@@ -439,5 +447,9 @@ window.onNewOrderArrived = function(){
   playNewOrderSound();
 };
 
-// activar el botón desde que carga la página
-setupNewOrderSoundUI();
+// Activar el botón de sonido (si el audio ya está en el DOM; si no, al terminar de cargar)
+if (document.getElementById('new-order-sound')) {
+  setupNewOrderSoundUI();
+} else {
+  document.addEventListener('DOMContentLoaded', setupNewOrderSoundUI);
+}

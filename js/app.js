@@ -90,33 +90,34 @@ function initOrdersBackend(){
     ordersRef = db.collection(ORDERS_PATH);
     firestoreReady = true;
 
-    // ✅ Listener tiempo real
+    // ✅ Listener tiempo real: lista y panel se actualizan solos; timbre solo con pedido nuevo
     ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
-
-      // ✅ detectar si llegó un pedido nuevo (solo después de la primera carga)
-      let hasNew = false;
-      if(ordersListenerReady){
-        snap.docChanges().forEach((ch)=>{
-          if(ch.type === "added") hasNew = true;
-        });
-      }
-      ordersListenerReady = true;
-
-      // ✅ IMPORTANTÍSIMO: guardar doc.id también
-      orders = [];
-      snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-
-      // ✅ ordenar seguro
-      orders.sort((a,b)=> (a.createdAt || '').localeCompare(b.createdAt || ''));
-
-      // ✅ refrescar admin si está abierto
-      if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
-        if (typeof window.renderAdmin === 'function') window.renderAdmin();
-
-        // ✅ SOLO si admin está abierto, suena timbre cuando hay pedido nuevo
-        if(hasNew && typeof window.onNewOrderArrived === "function"){
-          window.onNewOrderArrived();
+      try {
+        // ✅ Detectar pedido nuevo solo después de la primera carga (evita timbre al cargar)
+        let hasNew = false;
+        if (ordersListenerReady) {
+          snap.docChanges().forEach((ch) => {
+            if (ch.type === 'added') hasNew = true;
+          });
         }
+        ordersListenerReady = true;
+
+        // ✅ Sincronizar lista local con Firestore (doc.id para poder actualizar estado)
+        orders = [];
+        snap.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+
+        // ✅ Ordenar por fecha
+        orders.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+
+        // ✅ Si el panel admin está abierto: actualizar tabla y, si hay pedido nuevo, sonar timbre
+        if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
+          if (typeof window.renderAdmin === 'function') window.renderAdmin();
+          if (hasNew && typeof window.onNewOrderArrived === 'function') {
+            window.onNewOrderArrived();
+          }
+        }
+      } catch (err) {
+        console.warn('[Firebase] Error en listener:', err);
       }
     });
 
@@ -1178,10 +1179,10 @@ document.getElementById('checkout-form')?.addEventListener('submit', async (e)=>
     return;
   }
 
-  const name = wrapText(document.getElementById('cust-name').value, 25);
-  const address = wrapText(document.getElementById('cust-address').value, 25);
-  const phone = document.getElementById('cust-phone').value.trim();
-  const comment = wrapText(document.getElementById('cust-comment').value, 25);
+  const name = wrapText(document.getElementById('cust-name')?.value ?? '', 25);
+  const address = wrapText(document.getElementById('cust-address')?.value ?? '', 25);
+  const phone = (document.getElementById('cust-phone')?.value ?? '').trim();
+  const comment = wrapText(document.getElementById('cust-comment')?.value ?? '', 25);
 
   const ticketNumber = nextTicketNumber(); // ✅ FIX: ya no depende de orders.length
 
@@ -1232,7 +1233,8 @@ document.querySelectorAll('.chip').forEach(btn=>{
 });
 
 /* Year */
-document.getElementById('year').textContent = String(new Date().getFullYear());
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
 /* ✅ Enforce wrap */
 enforceWrapLimit(document.getElementById('cust-name'), 25);
