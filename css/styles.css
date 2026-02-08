@@ -1044,12 +1044,14 @@ main#ofertas > section{
   max-width: 100%;
 }
 
-/* PC: 2 columnas por fila, misma altura, perfectamente alineadas */
-@media (min-width: 901px){
+/* Tablet y PC (641px+): 2 columnas, mismo ancho y altura, centrados (incl. pantallas ~25cm) */
+@media (min-width: 641px){
   .pollon-combos{
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     align-items: stretch;
+    justify-items: stretch;
+    max-width: 100%;
   }
   .pollon-combos .combo-card{
     display: grid;
@@ -1057,6 +1059,7 @@ main#ofertas > section{
     align-items: stretch;
     min-height: 0;
     height: 100%;
+    width: 100%;
   }
   .pollon-combos .combo-media{
     aspect-ratio: auto;
@@ -1388,14 +1391,41 @@ main#ofertas > section{
   .admin-stats{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   .admin-filters{ grid-template-columns: 1fr 1fr; }
 }
-/* Combos en móvil: apilados (imagen arriba, cuerpo abajo) */
+/* Combos en celular: 1 por fila, mismo tamaño, bien alineados */
 @media (max-width: 640px){
-  .pollon-combos{ grid-template-columns: 1fr; gap: 16px; }
-  .combo-card{ grid-template-columns: 1fr; }
-  .combo-media{ aspect-ratio: 16 / 10; min-height: 0; }
-  .combo-body{ padding: 12px 14px; }
-  .combo-title{ font-size: 15px; }
-  .combo-text{ -webkit-line-clamp: 2; line-clamp: 2; font-size: 12px; }
+  .pollon-combos{
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 0 12px;
+    justify-items: stretch;
+    align-items: stretch;
+  }
+  .pollon-combos .combo-card{
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .pollon-combos .combo-media{
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+    width: 100%;
+  }
+  .pollon-combos .combo-media img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pollon-combos .combo-body{
+    padding: 14px 16px;
+  }
+  .pollon-combos .combo-title{ font-size: 15px; }
+  .pollon-combos .combo-text{
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 12px;
+  }
+  .pollon-combos .combo-cta{ margin-top: 12px; }
 }
 
 
