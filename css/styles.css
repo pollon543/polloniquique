@@ -529,77 +529,71 @@ body{ padding-bottom: 110px; }
 }
 
 
-/* ===== CATEGORÍAS SLIDER (como la imagen) ===== */
+/* ===== CATEGORÍAS SLIDER: centrado + scroll táctil izquierda/derecha ===== */
 .cat-slider{
   margin-top: 24px;
-  margin-bottom:10px;
+  margin-bottom: 14px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .cat-slider__wrap{
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 0;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-/* Flechas */
-.cat-nav{
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  background: #fff;
-  color: rgb(239, 68, 68);
-  font-size: 26px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  user-select: none;
-}
-.cat-nav:active{ transform: scale(0.98); }
-.cat-nav[disabled]{ opacity: .35; cursor: not-allowed; }
-
+/* Carril con scroll horizontal táctil (deslizar con el dedo) */
 .cat-track{
-  flex: 1;
   display: grid;
   grid-auto-flow: column;
-  touch-action: pan-y;
-
-  /* ✅ 2 cuadros en celular */
-  grid-auto-columns: calc((100% - 10px) / 3);
-
-  gap:15px;                /* ✅ más pegaditos */
+  gap: 14px;
   overflow-x: auto;
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-
-  padding: 6px 0%;         /* ✅ como la imagen */
-  border-radius: 12px;
-
+  padding: 10px 0;
+  width: 100%;
+  min-height: 0;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-.cat-track::-webkit-scrollbar{ height: 0; }
+.cat-track::-webkit-scrollbar{
+  height: 0;
+  display: none;
+}
 
 .cat-card{
   scroll-snap-align: start;
-  background: #fdfdfd;       /* gris suave como imagen */
-  border-radius: 10px;
-  padding: 0px;
-  display: grid;
-  gap: 0px;
+  scroll-snap-stop: always;
+  background: #fdfdfd;
+  border-radius: 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  border: 1px solid rgba(0,0,0,.06);
 }
 
 .cat-card__img{
   width: 100%;
-  border-radius: 10px;
+  border-radius: 14px 14px 0 0;
   background: #fff;
   overflow: hidden;
   aspect-ratio: 1 / 1;
   border: none;
   padding: 0;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .cat-card__img img{
   width: 100%;
@@ -609,19 +603,21 @@ body{ padding-bottom: 110px; }
 }
 
 /* Botón rojo */
-/* ✅ Botón de categoría: blanco + negro */
+/* Botón de categoría bajo la imagen */
 .cat-card__btn{
   width: 100%;
-  border: 1px solid rgb(255, 255, 255);
-  border-radius: 10px;
-  padding: 10px 10px;
-
-  background: #ffffff;      /* ✅ blanco claro */
-  color: #111;              /* ✅ negro */
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 0 0 14px 14px;
+  border-top: none;
+  padding: 12px 10px;
+  background: #fff;
+  color: #111;
   font-weight: 900;
-
+  font-size: 13px;
   cursor: pointer;
-  transition: color .15s ease, border-color .15s ease, background .15s ease;
+  transition: color .15s ease, background .15s ease;
+  flex-shrink: 0;
+  text-align: center;
 }
 
 /* ✅ Efecto hover: texto rojo + línea abajo */
@@ -650,24 +646,42 @@ body{ padding-bottom: 110px; }
 }
 
 
-/* Tablet: 3 cuadros */
+/* Móvil: tarjetas con ancho fijo para scroll táctil suave (deslizar con el dedo) */
+@media (max-width: 639px){
+  .cat-track{
+    grid-auto-columns: 148px;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+  .cat-card{
+    width: 148px;
+    min-width: 148px;
+  }
+}
+
+/* Tablet: 4 columnas visibles, centradas */
 @media (min-width: 640px){
-  .cat-track{ grid-auto-columns: calc((100% - 28px) / 4); }
+  .cat-track{
+    grid-auto-columns: calc((100% - 36px) / 4);
+  }
 }
 
-/* PC: 5 cuadros (se ve similar pro) */
+/* PC: 6 columnas visibles */
 @media (min-width: 1024px){
-  .cat-track{ grid-auto-columns: calc((100% - 50px) / 6); }
+  .cat-track{
+    grid-auto-columns: calc((100% - 70px) / 6);
+  }
 }
 
-/* Puntitos */
-/* ✅ Fila inferior igual a la imagen */
+/* Controles: puntitos y flechas centrados */
 .cat-controls{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
-  padding: 0 6px;
+  margin-top: 12px;
+  padding: 0 8px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Puntitos izquierda */
