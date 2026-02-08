@@ -1044,10 +1044,11 @@ main#ofertas > section{
   max-width: 100%;
 }
 
-/* Tablet y PC (641px+): 2 columnas, mismo ancho y altura, centrados (incl. pantallas ~25cm) */
+/* Tablet y PC (641px+): 2 columnas, TODOS los cuadros misma altura y mismo ancho */
 @media (min-width: 641px){
   .pollon-combos{
     grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 300px;
     gap: 24px;
     align-items: stretch;
     justify-items: stretch;
@@ -1060,20 +1061,30 @@ main#ofertas > section{
     min-height: 0;
     height: 100%;
     width: 100%;
+    overflow: hidden;
   }
   .pollon-combos .combo-media{
     aspect-ratio: auto;
     height: 100%;
-    min-height: 160px;
+    min-height: 0;
+    overflow: hidden;
   }
   .pollon-combos .combo-body{
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding: 16px 18px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .pollon-combos .combo-text{
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
   }
   .pollon-combos .combo-cta{
     margin-top: auto;
+    flex-shrink: 0;
   }
 }
 
