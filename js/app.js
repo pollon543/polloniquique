@@ -90,17 +90,10 @@ function initOrdersBackend(){
     ordersRef = db.collection(ORDERS_PATH);
     firestoreReady = true;
 
-    // ✅ Listener tiempo real: lista y panel se actualizan solos; timbre solo con pedido nuevo
+    // ✅ Listener tiempo real: lista y panel se actualizan solos; timbre en cada pedido nuevo (siempre)
     ordersRef.orderBy('createdAt', 'asc').onSnapshot((snap)=>{
       try {
-        // ✅ Detectar pedido nuevo solo después de la primera carga (evita timbre al cargar)
-        let hasNew = false;
-        if (ordersListenerReady) {
-          snap.docChanges().forEach((ch) => {
-            if (ch.type === 'added') hasNew = true;
-          });
-        }
-        ordersListenerReady = true;
+        const prevCount = orders.length;
 
         // ✅ Sincronizar lista local con Firestore (doc.id para poder actualizar estado)
         orders = [];
@@ -109,7 +102,11 @@ function initOrdersBackend(){
         // ✅ Ordenar por fecha
         orders.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
 
-        // ✅ Si el panel admin está abierto: actualizar tabla y, si hay pedido nuevo, sonar timbre
+        // ✅ Pedido nuevo = ya teníamos datos (no es carga inicial) y ahora hay más pedidos → timbre siempre
+        const hasNew = prevCount > 0 && orders.length > prevCount;
+        ordersListenerReady = true;
+
+        // ✅ Si el panel admin está abierto: actualizar tabla y, si llegó al menos un pedido nuevo, sonar timbre
         if (typeof window.isAdminOpen === 'function' && window.isAdminOpen()) {
           if (typeof window.renderAdmin === 'function') window.renderAdmin();
           if (hasNew && typeof window.onNewOrderArrived === 'function') {

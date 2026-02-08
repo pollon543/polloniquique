@@ -20,7 +20,22 @@ body{ padding-bottom: 110px; }
   background: linear-gradient(135deg, rgba(140,0,0,1) 0%, rgb(206, 2, 2) 55%, rgb(211, 3, 3) 100%);
 }
 
-
+/* ✅ Header fijo al hacer scroll (estático, siempre visible) */
+body > header{
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
+  min-height: 0;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  isolation: isolate;
+}
+body > header .header-gradient{
+  min-height: 1px;
+}
 
 /* ✅ Header layout súper alineado */
 
