@@ -1044,10 +1044,10 @@ main#ofertas > section{
   max-width: 100%;
 }
 
-/* PC: 3 columnas fijas, misma altura por fila, bien alineadas */
+/* PC: 2 columnas por fila, misma altura, perfectamente alineadas */
 @media (min-width: 901px){
   .pollon-combos{
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     align-items: stretch;
   }
