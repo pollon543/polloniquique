@@ -1309,6 +1309,8 @@ window.__POLLON__ = {
   const btnPrev = document.getElementById("cat-prev");
   const btnNext = document.getElementById("cat-next");
   const dotsWrap = document.getElementById("cat-dots");
+  const scrollBar = document.getElementById("cat-scrollbar");
+  const scrollThumb = document.getElementById("cat-scrollbar-thumb");
 
   // ✅ Si no existe el contenedor principal, no inicializar
   if (!track) return;
@@ -1347,6 +1349,26 @@ window.__POLLON__ = {
     if(dots[index]) dots[index].classList.add("is-active");
   }
 
+  function updateScrollIndicator(){
+    if(!scrollBar || !scrollThumb) return;
+
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    if(maxScroll <= 1){
+      scrollBar.style.display = 'none';
+      return;
+    }
+    scrollBar.style.display = '';
+
+    const barW = scrollBar.clientWidth || 1;
+    const ratio = track.clientWidth / track.scrollWidth;
+    const thumbW = Math.max(55, Math.floor(barW * ratio)); // mínimo “profesional” tipo imagen
+    const maxLeft = Math.max(0, barW - thumbW);
+    const left = maxLeft * (track.scrollLeft / maxScroll);
+
+    scrollThumb.style.width = `${thumbW}px`;
+    scrollThumb.style.transform = `translateX(${left}px)`;
+  }
+
   function updateUI(){
     const step = getStep();
     const cards = track.querySelectorAll(".cat-card");
@@ -1361,6 +1383,8 @@ window.__POLLON__ = {
     if (btnNext) {
       btnNext.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 2);
     }
+
+    updateScrollIndicator();
   }
 
   function scrollByCard(dir){

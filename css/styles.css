@@ -591,8 +591,8 @@ main#ofertas > section{
 
 /* ===== CATEGORÍAS SLIDER: centrado + scroll táctil izquierda/derecha ===== */
 .cat-slider{
-  margin-top: 24px;
-  margin-bottom: 14px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   width: 100%;
   max-width: 100%;
 }
@@ -607,6 +607,26 @@ main#ofertas > section{
   overflow: hidden;
 }
 
+/* Indicador tipo imagen (barra gris + avance rojo) */
+.cat-scrollbar{
+  height: 7px;
+  width: 100%;
+  max-width: 100%;
+  background: #bdbdbd;
+  border-radius: 999px;
+  margin-top: 6px;          /* ✅ bien pegado al bloque de categorías */
+  margin-bottom: 0;
+  overflow: hidden;
+}
+.cat-scrollbar__thumb{
+  height: 100%;
+  width: 40px;              /* JS lo ajusta */
+  background: #d60000;
+  border-radius: 999px;
+  transform: translateX(0);
+  will-change: transform, width;
+}
+
 /* Carril: scroll horizontal, arrastre con mouse o dedo desde imagen/cualquier parte */
 .cat-track{
   display: grid;
@@ -616,7 +636,7 @@ main#ofertas > section{
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 10px 0;
+  padding: 8px 0;           /* un poco más compacto como la imagen */
   width: 100%;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
