@@ -838,10 +838,22 @@ function updateCategoryTitle(cat){
 function toggleCatSlider(cat){
   if(!catSliderEl) return;
 
-  if(cat === 'todo-el-menu'){
-    catSliderEl.classList.remove('is-hidden');
+  // ✅ El slider siempre se mantiene visible (estático)
+  catSliderEl.classList.remove('is-hidden');
+}
+
+function toggleHeroCarousel(show){
+  const heroSection = document.querySelector('.hero');
+  if(!heroSection) return;
+  
+  if(show){
+    heroSection.classList.remove('is-hidden');
+    // Reiniciar el carrusel cuando se muestra
+    startCarousel();
   }else{
-    catSliderEl.classList.add('is-hidden');
+    heroSection.classList.add('is-hidden');
+    // Detener el carrusel cuando se oculta
+    if(carouselTimer) clearInterval(carouselTimer);
   }
 }
 
@@ -851,8 +863,14 @@ function setCategory(cat){
   updateCategoryTitle(cat);
   toggleCatSlider(cat);
 
-  if(cat === 'todo-el-menu') renderProductsAll();
-  else renderProductsSingle(cat);
+  // ✅ Mostrar el carrusel cuando se selecciona una categoría específica
+  if(cat === 'todo-el-menu'){
+    toggleHeroCarousel(true);
+    renderProductsAll();
+  }else{
+    toggleHeroCarousel(true);
+    renderProductsSingle(cat);
+  }
 }
 
 function jumpToCategory(cat){
@@ -861,11 +879,18 @@ function jumpToCategory(cat){
     scrollToMenu();
     return;
   }
-  if(currentCategory !== 'todo-el-menu') setCategory('todo-el-menu');
-  setTimeout(()=>{
-    const el = document.getElementById(cat);
-    if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
-  }, 50);
+  // ✅ Cuando se hace clic en una categoría desde otro lugar, mostrar carrusel
+  setCategory(cat);
+  scrollToMenu();
+}
+
+// ✅ Función para resetear al inicio (mostrar carrusel y todo el menú)
+function resetToHome(){
+  setCategory('todo-el-menu');
+  toggleHeroCarousel(true);
+  scrollToMenu();
+  // Scroll al top suave
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function handleChatbotAction(action){
@@ -946,6 +971,19 @@ document.addEventListener('click', (e)=>{
   if(closeSel){
     closeModal(closeSel);
     return;
+  }
+
+  // ✅ Handler para el logo y nombre - resetear al inicio
+  const headerLeft = document.querySelector('.header-left');
+  if(headerLeft && headerLeft.contains(t)){
+    // Buscar el enlace más cercano dentro del header-left
+    const logoLink = t.closest('a[href="#"]');
+    if(logoLink && headerLeft.contains(logoLink)){
+      e.preventDefault();
+      e.stopPropagation();
+      resetToHome();
+      return;
+    }
   }
 
   if(t?.classList?.contains('category-btn') || t?.closest?.('.category-btn')){
@@ -1242,6 +1280,8 @@ enforceWrapLimit(document.getElementById('cust-comment'), 25);
 function init(){
   initOrdersBackend();
   loadOrders();
+  // ✅ Asegurar que el carrusel se muestre al inicio
+  toggleHeroCarousel(true);
   setCategory('todo-el-menu');
   updateCartUI();
   renderCart();

@@ -1455,6 +1455,11 @@ main#ofertas > section{
   display: none;
 }
 
+/* ✅ Ocultar hero/carrusel cuando sea necesario */
+.hero.is-hidden{
+  display: none;
+}
+
 
 /* ✅ Cabecera más grande y con mejor espacio */
 .category-title{
