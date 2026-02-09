@@ -2877,70 +2877,85 @@ main#ofertas > section{
   color: #111827;
 }
 
-/* ================= FILTROS ================= */
-#admin-panel-modal .adminp-filters{
+/* ================= FILTROS: una sola línea (Desde, Hasta, Estado, Buscar, Acciones) ================= */
+#admin-panel-modal .adminp-filters-scroll{
   margin: 0 18px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#admin-panel-modal .adminp-filters-scroll::-webkit-scrollbar{ height: 4px; }
+#admin-panel-modal .adminp-filters-scroll::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.2); border-radius: 4px; }
+
+#admin-panel-modal .adminp-filters{
   border: 1px solid rgba(0,0,0,.08);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: #fff;
   box-shadow: 0 6px 18px rgba(0,0,0,.04);
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(80px,1fr) minmax(80px,1fr) minmax(90px,1fr) minmax(100px,1.2fr) minmax(240px,auto);
+  grid-template-rows: auto auto;
   gap: 8px;
   align-items: end;
+  min-width: 0;
 }
-
 #admin-panel-modal .adminp-field{
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
 }
 
 #admin-panel-modal .adminp-label{
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #admin-panel-modal .adminp-input{
-  height: 38px;
-  border-radius: 10px;
+  height: 34px;
+  border-radius: 8px;
   border: 1px solid rgba(0,0,0,.14);
-  padding: 0 10px;
+  padding: 0 8px;
   outline: none;
-  font-size: 13px;
+  font-size: 12px;
   background: #fff;
+  min-width: 0;
 }
 #admin-panel-modal .adminp-input:focus{
   border-color: rgba(59,130,246,.55);
-  box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.12);
 }
 
-/* Search ocupa más ancho */
 #admin-panel-modal .adminp-field-search{
   grid-column: span 1;
 }
 
-/* Acciones debajo (como foto: a la derecha) */
+/* Acciones en la misma línea (quinto bloque) */
 #admin-panel-modal .adminp-actions{
-  grid-column: 1 / -1;
+  grid-column: span 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
   justify-content: flex-end;
-  padding-top: 4px;
+  align-items: center;
+  min-width: 0;
 }
 
 #admin-panel-modal .adminp-btn{
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 10px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
   border: 1px solid rgba(0,0,0,.10);
   cursor: pointer;
   transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 #admin-panel-modal .adminp-btn:hover{
@@ -2960,12 +2975,12 @@ main#ofertas > section{
   color: #fff;
 }
 
-/* Nota de rango */
+/* Nota de rango (segunda fila, ancho completo) */
 #admin-panel-modal .adminp-range-note{
   grid-column: 1 / -1;
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 /* ================= TABLA / LISTA CON SCROLL (el área que crece; footer siempre visible) ================= */
@@ -3104,15 +3119,12 @@ main#ofertas > section{
   }
   #admin-panel-modal .adminp-stat .k{ font-size: 8px; }
   #admin-panel-modal .adminp-stat .v{ font-size: 12px; }
+  /* Filtros: misma línea con scroll si hace falta */
   #admin-panel-modal .adminp-filters{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(80px,1fr) minmax(80px,1fr) minmax(90px,1fr) minmax(100px,1.2fr) minmax(240px,auto);
   }
-  #admin-panel-modal .adminp-field-search{
-    grid-column: span 2;
-  }
-  #admin-panel-modal .adminp-actions{
-    justify-content: flex-start;
-  }
+  #admin-panel-modal .adminp-field-search{ grid-column: span 1; }
+  #admin-panel-modal .adminp-actions{ justify-content: flex-end; }
   #admin-panel-modal .adminp-tablewrap{
     max-height: 38vh;
   }
@@ -3166,27 +3178,31 @@ main#ofertas > section{
   }
   #admin-panel-modal .adminp-stat .k{ font-size: 7px; }
   #admin-panel-modal .adminp-stat .v{ font-size: 11px; }
-  #admin-panel-modal .adminp-filters{
+  /* Filtros: una sola línea con scroll horizontal en celular */
+  #admin-panel-modal .adminp-filters-scroll{
     margin: 0 14px 10px;
-    padding: 12px;
-    grid-template-columns: 1fr;
-    gap: 12px;
   }
-  #admin-panel-modal .adminp-field-search{
-    grid-column: span 1;
+  #admin-panel-modal .adminp-filters{
+    padding: 8px 12px;
+    grid-template-columns: minmax(72px,1fr) minmax(72px,1fr) minmax(80px,1fr) minmax(90px,1.2fr) minmax(220px,auto);
+    grid-template-rows: auto auto;
+    gap: 8px;
+    min-width: 540px;
   }
+  #admin-panel-modal .adminp-field-search{ grid-column: span 1; }
   #admin-panel-modal .adminp-input{
-    min-height: 44px;
-    height: 44px;
+    min-height: 38px;
+    height: 38px;
   }
   #admin-panel-modal .adminp-actions{
-    gap: 8px;
-    padding-top: 8px;
+    gap: 6px;
+    padding-top: 0;
   }
   #admin-panel-modal .adminp-btn{
-    min-height: 44px;
-    height: auto;
-    padding: 10px 14px;
+    min-height: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 10px;
   }
   #admin-panel-modal .adminp-tablewrap{
     margin: 0 14px 12px;
