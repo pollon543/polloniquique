@@ -2810,70 +2810,71 @@ main#ofertas > section{
   color: #b91c1c;
 }
 
-/* ================= STATS (compactos para dejar espacio abajo) ================= */
+/* ================= STATS: una sola línea (7 cuadros) para más espacio abajo ================= */
 #admin-panel-modal .adminp-stats{
   padding: 0 18px 8px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
   align-items: stretch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+#admin-panel-modal .adminp-stats::-webkit-scrollbar{
+  height: 4px;
+}
+#admin-panel-modal .adminp-stats::-webkit-scrollbar-thumb{
+  background: rgba(0,0,0,.2);
+  border-radius: 4px;
 }
 
 #admin-panel-modal .adminp-stat{
   border: 1px solid rgba(0,0,0,.08);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: 8px;
+  padding: 6px 8px;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,.04);
-  min-height: 56px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.04);
+  min-height: 48px;
+  min-width: 72px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 #admin-panel-modal .adminp-stat .k{
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: .02em;
   text-transform: uppercase;
   color: #6b7280;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #admin-panel-modal .adminp-stat .v{
-  margin-top: 4px;
-  font-size: 16px;
+  margin-top: 2px;
+  font-size: 13px;
   font-weight: 900;
   color: #111827;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #admin-panel-modal .adminp-stat-wide{
   grid-column: span 1;
 }
 
-#admin-panel-modal #st-sales{
-  color: #111827;
-}
-#admin-panel-modal #st-rate{
-  color: #111827;
-}
-#admin-panel-modal #st-avg{
-  color: #111827;
-}
+#admin-panel-modal #st-sales,
+#admin-panel-modal #st-rate,
+#admin-panel-modal #st-avg,
 #admin-panel-modal #st-eta{
   color: #111827;
-}
-
-/* segunda fila (3 tarjetas) como en la foto */
-#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(3){
-  grid-column: span 2;
-}
-#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(2){
-  grid-column: span 1;
-}
-#admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(1){
-  grid-column: span 1;
 }
 
 /* ================= FILTROS ================= */
@@ -3092,18 +3093,17 @@ main#ofertas > section{
   #admin-panel-modal .adminp-card{
     max-height: 90vh;
   }
+  /* Stats siguen en una sola línea; si no caben, scroll horizontal */
   #admin-panel-modal .adminp-stats{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(70px, 1fr));
   }
   #admin-panel-modal .adminp-stat{
-    min-height: 52px;
-    padding: 6px 8px;
+    min-width: 70px;
+    min-height: 46px;
+    padding: 5px 6px;
   }
-  #admin-panel-modal .adminp-stat .k{ font-size: 9px; }
-  #admin-panel-modal .adminp-stat .v{ font-size: 14px; }
-  #admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(3){
-    grid-column: span 2;
-  }
+  #admin-panel-modal .adminp-stat .k{ font-size: 8px; }
+  #admin-panel-modal .adminp-stat .v{ font-size: 12px; }
   #admin-panel-modal .adminp-filters{
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3114,7 +3114,7 @@ main#ofertas > section{
     justify-content: flex-start;
   }
   #admin-panel-modal .adminp-tablewrap{
-    max-height: 40vh;
+    max-height: 38vh;
   }
 }
 
@@ -3153,23 +3153,19 @@ main#ofertas > section{
     padding: 10px 14px;
     font-size: 12px;
   }
+  /* Stats: una línea con scroll horizontal en móvil */
   #admin-panel-modal .adminp-stats{
-    padding: 0 14px 10px;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    padding: 0 14px 8px;
+    grid-template-columns: repeat(7, minmax(64px, 1fr));
+    gap: 6px;
   }
   #admin-panel-modal .adminp-stat{
-    min-height: 70px;
-    padding: 12px 14px;
+    min-height: 44px;
+    min-width: 64px;
+    padding: 5px 6px;
   }
-  #admin-panel-modal .adminp-stat .v{
-    font-size: 18px;
-  }
-  #admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(3),
-  #admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(2),
-  #admin-panel-modal .adminp-stats .adminp-stat-wide:nth-last-child(1){
-    grid-column: span 1;
-  }
+  #admin-panel-modal .adminp-stat .k{ font-size: 7px; }
+  #admin-panel-modal .adminp-stat .v{ font-size: 11px; }
   #admin-panel-modal .adminp-filters{
     margin: 0 14px 10px;
     padding: 12px;
