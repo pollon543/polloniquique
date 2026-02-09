@@ -1760,8 +1760,8 @@ main#ofertas > section{
   justify-content:center;
   align-items:center;
   gap:14px;
-  padding: 12px 10px;
-  margin-top: 10px;
+  padding: 4px 10px;
+  margin-top: 4px;
 
   /* clave para que NO salte a otra línea */
   flex-wrap: nowrap;
@@ -1779,7 +1779,7 @@ main#ofertas > section{
   flex: 1 1 0;
   max-width: 360px;
 
-  padding: 10px 14px;
+  padding: 6px 14px;
   border-radius: 16px;
   background: #f3f4f6;
   border: 1px solid rgba(0,0,0,.08);
