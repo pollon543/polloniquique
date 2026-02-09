@@ -1366,7 +1366,8 @@ window.__POLLON__ = {
   track.addEventListener("scroll", () => requestAnimationFrame(updateUI));
 
   /* Arrastre con mouse o dedo desde cualquier parte (imagen, texto, card). Umbral para no bloquear clic en categoría. */
-  const DRAG_THRESHOLD = 10;
+  const DRAG_THRESHOLD = 8; // ✅ Umbral más bajo para detectar más temprano
+  const VERTICAL_THRESHOLD = 6; // ✅ Umbral específico para movimiento vertical
   let isDown = false;
   let dragMode = false;
   let startX = 0;
@@ -1400,15 +1401,23 @@ window.__POLLON__ = {
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
       
-      // ✅ Si el movimiento supera el umbral, determinar la dirección
-      if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
-        // ✅ Si el movimiento es principalmente vertical, permitir scroll vertical
-        if (dy > dx * 1.2) { // ✅ Factor 1.2 para dar más prioridad al scroll vertical
-          isVerticalScroll = true;
-          isDown = false; // Liberar para permitir scroll vertical
-          return;
+      // ✅ Detectar movimiento vertical PRIMERO (más temprano)
+      if (dy > VERTICAL_THRESHOLD && dy > dx) {
+        // ✅ Movimiento principalmente vertical - liberar control inmediatamente
+        isVerticalScroll = true;
+        isDown = false;
+        dragMode = false;
+        // ✅ Liberar cualquier captura de pointer
+        if (capturedPointerId != null) {
+          try { track.releasePointerCapture(capturedPointerId); } catch (_) {}
+          capturedPointerId = null;
         }
-        // ✅ Si el movimiento es principalmente horizontal, activar drag horizontal
+        track.classList.remove("cat-track--grabbing");
+        return; // ✅ Salir y permitir scroll vertical nativo
+      }
+      
+      // ✅ Si el movimiento supera el umbral horizontal, activar drag horizontal
+      if (dx > DRAG_THRESHOLD && dx >= dy) {
         dragMode = true;
         didDrag = true;
         capturedPointerId = e.pointerId;
@@ -1451,10 +1460,11 @@ window.__POLLON__ = {
 
   /* Evitar que al soltar después de arrastrar se dispare el clic del botón de categoría */
   track.addEventListener("click", (e) => {
-    if (didDrag) {
+    if (didDrag || isVerticalScroll) {
       e.preventDefault();
       e.stopPropagation();
       didDrag = false;
+      isVerticalScroll = false;
     }
   }, true);
 

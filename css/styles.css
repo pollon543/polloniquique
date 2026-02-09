@@ -620,7 +620,7 @@ main#ofertas > section{
   width: 100%;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -664,7 +664,7 @@ main#ofertas > section{
   padding: 0;
   cursor: grab;
   flex-shrink: 0;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
 }
 .cat-track--grabbing .cat-card__img{
   cursor: grabbing;
@@ -692,7 +692,7 @@ main#ofertas > section{
   transition: color .15s ease, background .15s ease;
   flex-shrink: 0;
   text-align: center;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
 }
 .cat-track--grabbing .cat-card__btn{
   cursor: grabbing;
