@@ -1310,7 +1310,8 @@ window.__POLLON__ = {
   const btnNext = document.getElementById("cat-next");
   const dotsWrap = document.getElementById("cat-dots");
 
-  if (!track || !btnPrev || !btnNext || !dotsWrap) return;
+  // ✅ Si no existe el contenedor principal, no inicializar
+  if (!track) return;
 
   function getGap(){
     const style = getComputedStyle(track);
@@ -1326,6 +1327,7 @@ window.__POLLON__ = {
   function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
   function buildDots(){
+    if (!dotsWrap) return;
     const cards = track.querySelectorAll(".cat-card");
     dotsWrap.innerHTML = "";
     cards.forEach((_, i) => {
@@ -1339,6 +1341,7 @@ window.__POLLON__ = {
   }
 
   function setActiveDot(index){
+    if (!dotsWrap) return;
     const dots = dotsWrap.querySelectorAll(".cat-dot");
     dots.forEach(d => d.classList.remove("is-active"));
     if(dots[index]) dots[index].classList.add("is-active");
@@ -1352,16 +1355,21 @@ window.__POLLON__ = {
     const idx = clamp(Math.round(track.scrollLeft / step), 0, maxIndex);
     setActiveDot(idx);
 
-    btnPrev.disabled = track.scrollLeft <= 2;
-    btnNext.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 2);
+    if (btnPrev) {
+      btnPrev.disabled = track.scrollLeft <= 2;
+    }
+    if (btnNext) {
+      btnNext.disabled = track.scrollLeft >= (track.scrollWidth - track.clientWidth - 2);
+    }
   }
 
   function scrollByCard(dir){
     track.scrollBy({ left: dir * getStep(), behavior: "smooth" });
   }
 
-  btnPrev.addEventListener("click", () => scrollByCard(-1));
-  btnNext.addEventListener("click", () => scrollByCard(1));
+  // ✅ Flechas solo si existen en el DOM
+  if (btnPrev) btnPrev.addEventListener("click", () => scrollByCard(-1));
+  if (btnNext) btnNext.addEventListener("click", () => scrollByCard(1));
 
   track.addEventListener("scroll", () => requestAnimationFrame(updateUI));
 
