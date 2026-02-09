@@ -2694,6 +2694,7 @@ main#ofertas > section{
   z-index: 9999;
   background: rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
+  overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -2715,18 +2716,21 @@ main#ofertas > section{
   border: 1px solid rgba(0,0,0,.12);
   box-shadow: 0 25px 60px rgba(0,0,0,.25);
   overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
 }
 #admin-panel-modal .adminp-head,
 #admin-panel-modal .adminp-stats,
+#admin-panel-modal .adminp-filters-scroll,
 #admin-panel-modal .adminp-filters{
   flex-shrink: 0;
 }
 #admin-panel-modal .adminp-tablewrap{
   flex: 1 1 auto;
   min-height: 120px;
+  min-width: 0;
 }
 #admin-panel-modal .adminp-foot{
   flex-shrink: 0;
@@ -3131,84 +3135,113 @@ main#ofertas > section{
 }
 
 /* =========================================
-   RESPONSIVE: Celular (1 columna, touch 44px, tabla con scroll horizontal)
+   RESPONSIVE: Celular — panel 100% adaptable, todo visible con scroll
    ========================================= */
 @media (max-width: 560px){
   #admin-panel-modal.modal{
-    padding: 8px;
+    padding: 6px;
     align-items: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
+  /* Card: ocupa ancho útil, scroll vertical para ver todo el panel */
   #admin-panel-modal .adminp-card{
     width: 100%;
     max-width: 100%;
-    max-height: 96vh;
+    max-height: 98vh;
+    min-height: 0;
     border-radius: 14px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
   }
   #admin-panel-modal .adminp-head{
-    padding: 14px 14px 10px;
+    padding: 12px 12px 8px;
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 10px;
   }
   #admin-panel-modal .adminp-title-main{
-    font-size: 18px;
+    font-size: 17px;
   }
   #admin-panel-modal .adminp-title-sub{
-    font-size: 12px;
+    font-size: 11px;
   }
+  /* Chips: una fila con scroll horizontal para ver los 4 botones */
   #admin-panel-modal .adminp-chips{
     justify-content: flex-start;
     gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    min-width: 0;
   }
+  #admin-panel-modal .adminp-chips::-webkit-scrollbar{ height: 3px; }
+  #admin-panel-modal .adminp-chips::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.2); border-radius: 3px; }
   #admin-panel-modal .adminp-chip{
-    min-height: 44px;
-    padding: 10px 14px;
-    font-size: 12px;
+    min-height: 40px;
+    min-width: max-content;
+    padding: 8px 12px;
+    font-size: 11px;
+    flex-shrink: 0;
   }
-  /* Stats: una línea con scroll horizontal en móvil */
+  /* Stats: una línea, scroll horizontal */
   #admin-panel-modal .adminp-stats{
-    padding: 0 14px 8px;
-    grid-template-columns: repeat(7, minmax(64px, 1fr));
+    padding: 0 12px 8px;
+    grid-template-columns: repeat(7, minmax(60px, 1fr));
     gap: 6px;
+    min-width: 460px;
   }
   #admin-panel-modal .adminp-stat{
-    min-height: 44px;
-    min-width: 64px;
+    min-height: 40px;
+    min-width: 60px;
     padding: 5px 6px;
   }
   #admin-panel-modal .adminp-stat .k{ font-size: 7px; }
   #admin-panel-modal .adminp-stat .v{ font-size: 11px; }
-  /* Filtros: una sola línea con scroll horizontal en celular */
+  /* Filtros: una línea, scroll horizontal; columna acciones ancha para los 5 botones */
   #admin-panel-modal .adminp-filters-scroll{
-    margin: 0 14px 10px;
+    margin: 0 12px 8px;
+    flex-shrink: 0;
   }
   #admin-panel-modal .adminp-filters{
-    padding: 8px 12px;
-    grid-template-columns: minmax(72px,1fr) minmax(72px,1fr) minmax(80px,1fr) minmax(90px,1.2fr) minmax(220px,auto);
+    padding: 8px 10px;
+    grid-template-columns: minmax(70px,1fr) minmax(70px,1fr) minmax(78px,1fr) minmax(85px,1.2fr) minmax(280px,auto);
     grid-template-rows: auto auto;
-    gap: 8px;
-    min-width: 540px;
+    gap: 6px;
+    min-width: 580px;
   }
   #admin-panel-modal .adminp-field-search{ grid-column: span 1; }
   #admin-panel-modal .adminp-input{
-    min-height: 38px;
-    height: 38px;
+    min-height: 36px;
+    height: 36px;
+    font-size: 11px;
   }
   #admin-panel-modal .adminp-actions{
     gap: 6px;
     padding-top: 0;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
   #admin-panel-modal .adminp-btn{
-    min-height: 36px;
-    height: 36px;
-    padding: 0 10px;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 8px;
     font-size: 10px;
+    flex-shrink: 0;
   }
+  /* Tabla: scroll doble (vertical y horizontal) */
   #admin-panel-modal .adminp-tablewrap{
-    margin: 0 14px 12px;
-    max-height: 45vh;
+    margin: 0 12px 10px;
+    flex: 1 1 auto;
+    min-height: 100px;
+    max-height: none;
     overflow-x: auto;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   #admin-panel-modal .adminp-table{
     min-width: 680px;
@@ -3218,11 +3251,13 @@ main#ofertas > section{
     font-size: 12px;
   }
   #admin-panel-modal .adminp-foot{
-    padding: 12px 14px 14px;
+    padding: 10px 12px 12px;
+    flex-shrink: 0;
   }
   #admin-panel-modal .adminp-close{
     width: 100%;
-    min-height: 48px;
+    min-height: 46px;
+    font-size: 13px;
   }
 }
 
