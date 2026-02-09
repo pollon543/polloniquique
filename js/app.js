@@ -1374,10 +1374,12 @@ window.__POLLON__ = {
   let startScroll = 0;
   let capturedPointerId = null;
   let didDrag = false;
+  let isVerticalScroll = false; // ✅ Nueva variable para detectar scroll vertical
 
   track.addEventListener("pointerdown", (e) => {
     isDown = true;
     dragMode = false;
+    isVerticalScroll = false;
     startX = e.clientX;
     startY = e.clientY;
     startScroll = track.scrollLeft;
@@ -1388,10 +1390,25 @@ window.__POLLON__ = {
 
   track.addEventListener("pointermove", (e) => {
     if (!isDown) return;
+    
+    // ✅ Si ya detectamos scroll vertical, no interferir
+    if (isVerticalScroll) {
+      return;
+    }
+    
     if (!dragMode) {
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
+      
+      // ✅ Si el movimiento supera el umbral, determinar la dirección
       if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
+        // ✅ Si el movimiento es principalmente vertical, permitir scroll vertical
+        if (dy > dx * 1.2) { // ✅ Factor 1.2 para dar más prioridad al scroll vertical
+          isVerticalScroll = true;
+          isDown = false; // Liberar para permitir scroll vertical
+          return;
+        }
+        // ✅ Si el movimiento es principalmente horizontal, activar drag horizontal
         dragMode = true;
         didDrag = true;
         capturedPointerId = e.pointerId;
@@ -1415,6 +1432,7 @@ window.__POLLON__ = {
     }
     isDown = false;
     dragMode = false;
+    isVerticalScroll = false;
     track.classList.remove("cat-track--grabbing");
     updateUI();
   });
@@ -1426,6 +1444,7 @@ window.__POLLON__ = {
     }
     isDown = false;
     dragMode = false;
+    isVerticalScroll = false;
     track.classList.remove("cat-track--grabbing");
     updateUI();
   });
