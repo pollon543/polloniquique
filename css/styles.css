@@ -2938,7 +2938,7 @@ main#ofertas > section{
   grid-column: span 1;
 }
 
-/* Acciones en la misma línea (quinto bloque) */
+/* Acciones en la misma línea (quinto bloque); en pantallas pequeñas scroll horizontal */
 #admin-panel-modal .adminp-actions{
   grid-column: span 1;
   display: flex;
@@ -2947,7 +2947,11 @@ main#ofertas > section{
   justify-content: flex-end;
   align-items: center;
   min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+#admin-panel-modal .adminp-actions::-webkit-scrollbar{ height: 3px; }
+#admin-panel-modal .adminp-actions::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.2); border-radius: 3px; }
 
 #admin-panel-modal .adminp-btn{
   height: 32px;
@@ -2960,6 +2964,7 @@ main#ofertas > section{
   transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: max-content;
 }
 
 #admin-panel-modal .adminp-btn:hover{
@@ -3112,23 +3117,34 @@ main#ofertas > section{
   #admin-panel-modal .adminp-card{
     max-height: 90vh;
   }
-  /* Stats siguen en una sola línea; si no caben, scroll horizontal */
+  /* Stats: una línea con scroll horizontal si no caben */
   #admin-panel-modal .adminp-stats{
-    grid-template-columns: repeat(7, minmax(70px, 1fr));
+    grid-template-columns: repeat(7, minmax(58px, 1fr));
+    min-width: 450px;
   }
   #admin-panel-modal .adminp-stat{
-    min-width: 70px;
-    min-height: 46px;
+    min-width: 58px;
+    min-height: 42px;
     padding: 5px 6px;
   }
-  #admin-panel-modal .adminp-stat .k{ font-size: 8px; }
-  #admin-panel-modal .adminp-stat .v{ font-size: 12px; }
-  /* Filtros: misma línea con scroll si hace falta */
+  #admin-panel-modal .adminp-stat .k{ font-size: 7px; }
+  #admin-panel-modal .adminp-stat .v{ font-size: 11px; }
+  /* Filtros: una línea con scroll; botones nunca apilados */
+  #admin-panel-modal .adminp-filters-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   #admin-panel-modal .adminp-filters{
-    grid-template-columns: minmax(80px,1fr) minmax(80px,1fr) minmax(90px,1fr) minmax(100px,1.2fr) minmax(240px,auto);
+    grid-template-columns: minmax(80px,1fr) minmax(80px,1fr) minmax(90px,1fr) minmax(100px,1.2fr) minmax(280px,auto);
+    min-width: 560px;
   }
   #admin-panel-modal .adminp-field-search{ grid-column: span 1; }
-  #admin-panel-modal .adminp-actions{ justify-content: flex-end; }
+  #admin-panel-modal .adminp-actions{
+    justify-content: flex-end;
+    min-width: 280px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   #admin-panel-modal .adminp-tablewrap{
     max-height: 38vh;
   }
@@ -3188,31 +3204,35 @@ main#ofertas > section{
     font-size: 11px;
     flex-shrink: 0;
   }
-  /* Stats: una línea, scroll horizontal */
+  /* Stats: más pequeños, una línea con scroll horizontal */
   #admin-panel-modal .adminp-stats{
-    padding: 0 12px 8px;
-    grid-template-columns: repeat(7, minmax(60px, 1fr));
-    gap: 6px;
-    min-width: 460px;
+    padding: 0 10px 6px;
+    grid-template-columns: repeat(7, minmax(48px, 1fr));
+    gap: 4px;
+    min-width: 380px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
+  #admin-panel-modal .adminp-stats::-webkit-scrollbar{ height: 3px; }
+  #admin-panel-modal .adminp-stats::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.2); border-radius: 3px; }
   #admin-panel-modal .adminp-stat{
-    min-height: 40px;
-    min-width: 60px;
-    padding: 5px 6px;
+    min-height: 36px;
+    min-width: 48px;
+    padding: 4px 5px;
   }
-  #admin-panel-modal .adminp-stat .k{ font-size: 7px; }
-  #admin-panel-modal .adminp-stat .v{ font-size: 11px; }
-  /* Filtros: una línea, scroll horizontal; columna acciones ancha para los 5 botones */
+  #admin-panel-modal .adminp-stat .k{ font-size: 6px; line-height: 1.1; }
+  #admin-panel-modal .adminp-stat .v{ font-size: 9px; }
+  /* Filtros: una línea con scroll; botones de acción en fila con scroll (nunca apilados) */
   #admin-panel-modal .adminp-filters-scroll{
     margin: 0 12px 8px;
     flex-shrink: 0;
   }
   #admin-panel-modal .adminp-filters{
     padding: 8px 10px;
-    grid-template-columns: minmax(70px,1fr) minmax(70px,1fr) minmax(78px,1fr) minmax(85px,1.2fr) minmax(280px,auto);
+    grid-template-columns: minmax(70px,1fr) minmax(70px,1fr) minmax(78px,1fr) minmax(85px,1.2fr) minmax(300px,auto);
     grid-template-rows: auto auto;
     gap: 6px;
-    min-width: 580px;
+    min-width: 600px;
   }
   #admin-panel-modal .adminp-field-search{ grid-column: span 1; }
   #admin-panel-modal .adminp-input{
@@ -3220,18 +3240,25 @@ main#ofertas > section{
     height: 36px;
     font-size: 11px;
   }
+  /* Botones de acción: siempre en una fila, scroll horizontal si no caben (nunca uno encima de otro) */
   #admin-panel-modal .adminp-actions{
     gap: 6px;
     padding-top: 0;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    min-width: 300px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
+  #admin-panel-modal .adminp-actions::-webkit-scrollbar{ height: 3px; }
+  #admin-panel-modal .adminp-actions::-webkit-scrollbar-thumb{ background: rgba(0,0,0,.2); border-radius: 3px; }
   #admin-panel-modal .adminp-btn{
-    min-height: 34px;
-    height: 34px;
+    min-height: 32px;
+    height: 32px;
     padding: 0 8px;
     font-size: 10px;
     flex-shrink: 0;
+    min-width: max-content;
   }
   /* Tabla: scroll doble (vertical y horizontal) */
   #admin-panel-modal .adminp-tablewrap{
