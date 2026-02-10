@@ -1789,23 +1789,22 @@ main#ofertas > section{
 }
 
 .top-pill{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
-  /* permite que en móvil se achiquen sin romper */
   min-width: 0;
   flex: 1 1 0;
   max-width: 360px;
 
-  padding: 6px 14px;
-  border-radius: 16px;
+  padding: 10px 20px;
+  border-radius: 999px;
   background: #f3f4f6;
   border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
 
-  font-weight: 900;
+  font-weight: 800;
   color: #111;
   text-decoration: none;
 
@@ -1819,35 +1818,39 @@ main#ofertas > section{
 }
 .top-pill:active{ transform: scale(.99); }
 
-/* texto se corta con ... si se queda sin espacio (móvil) */
+/* Texto: alineado, misma tipografía en ambos botones */
 .pill-left{
-  overflow:hidden;
+  flex: 0 0 auto;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: clamp(12px, 2.6vw, 14px);
+  font-size: clamp(13px, 2.6vw, 15px);
+  font-weight: 800;
+  color: #111;
+  line-height: 1.2;
 }
 
-/* ⭐ animación infinita */
+/* ⭐ Estrellas: espaciado uniforme, centradas */
 .pill-stars{
-  display:inline-flex;
-  gap:6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex: 0 0 auto;
 }
-.star{
-  display:inline-block;
-  font-size: 16px;
+.pill-stars .star{
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
   animation: starHop 0.8s ease-in-out infinite;
 }
-.star:nth-child(2){ animation-delay: .15s; }
-.star:nth-child(3){ animation-delay: .30s; }
+.pill-stars .star:nth-child(2){ animation-delay: .15s; }
+.pill-stars .star:nth-child(3){ animation-delay: .3s; }
 
 @keyframes starHop{
   0%,100%{ transform: translateY(0); }
   50%{ transform: translateY(-5px); }
 }
 
-/* ❤️ latido infinito (Top vendidos) */
-.pill-stars .star{ font-size: 16px; }
 .pill-heart{
   display:inline-block;
   font-size: 18px;
@@ -1860,25 +1863,16 @@ main#ofertas > section{
   60%{ transform: scale(0.98); }
 }
 
-/* Botón Favoritos (estilo píldora: gris claro + texto negro + 3 corazones rosa) */
+/* Favoritos: mismo centrado que Top vendidos, corazones rojo vino */
 .top-pill--favoritos{
-  justify-content: space-between;
-  padding: 10px 18px;
-  background: #f5f5f5;
-  border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
-  border: 1px solid rgba(0,0,0,.06);
-}
-.top-pill--favoritos .pill-left{
-  font-weight: 800;
-  color: #111;
-  font-size: clamp(13px, 2.8vw, 15px);
+  justify-content: center;
+  background: #f3f4f6;
 }
 .top-pill--favoritos .pill-hearts{
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
+  gap: 6px;
+  flex: 0 0 auto;
 }
 .top-pill--favoritos .pill-heart{
   font-size: 1.1rem;
@@ -1888,15 +1882,15 @@ main#ofertas > section{
 }
 .top-pill--favoritos .pill-heart:nth-child(2){ animation-delay: .15s; }
 .top-pill--favoritos .pill-heart:nth-child(3){ animation-delay: .3s; }
-.top-pill--favoritos:hover{
-  background: #fafafa;
-  box-shadow: 0 4px 12px rgba(0,0,0,.08);
-}
 
-/* en PC: no estirar demasiado */
+/* PC: ambos botones mismo ancho, bien alineados */
 @media (min-width: 1024px){
-  .topbar-wrap{ gap:18px; }
-  .top-pill{ flex: 0 0 auto; width: 320px; }
+  .topbar-wrap{ gap: 18px; }
+  .top-pill{
+    flex: 0 0 auto;
+    width: 200px;
+    min-width: 200px;
+  }
 }
 
 
