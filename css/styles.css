@@ -3313,6 +3313,288 @@ main#ofertas > section{
   }
 }
 
+/* =========================================
+   PANEL ADMIN — DISEÑO MÓVIL/TABLET IGUAL A LA FOTO
+   Header con hamburguesas, drawer lateral, tarjetas de pedidos
+   ========================================= */
+
+/* Botones hamburguesa: ocultos en desktop */
+.adminp-hamb{
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+.adminp-hamb-left{
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+}
+.adminp-hamb-right{
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #374151;
+  color: #fff;
+}
+
+/* Drawer lateral: oculto en desktop */
+.adminp-drawer{
+  display: none;
+}
+
+/* En tablet y celular: diseño como la foto */
+@media (max-width: 900px){
+  #admin-panel-modal .adminp-card{
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Header: [hamburger izq] [título centro] [hamburger der] */
+  .adminp-hamb{ display: flex; }
+  #admin-panel-modal .adminp-head{
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 12px 10px;
+  }
+  #admin-panel-modal .adminp-title{
+    order: 1;
+    grid-column: 2;
+    justify-content: center;
+    text-align: center;
+    min-width: 0;
+  }
+  #admin-panel-modal .adminp-title .adminp-icon{ display: none; }
+  #admin-panel-modal .adminp-title-main{
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+  #admin-panel-modal .adminp-title-sub{
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  #admin-panel-modal .adminp-chips{
+    display: none; /* se muestran con .adminp-filters-visible */
+  }
+  #admin-panel-modal .adminp-head .adminp-hamb-left{ order: 0; grid-column: 1; }
+  #admin-panel-modal .adminp-head .adminp-hamb-right{ order: 2; grid-column: 3; }
+
+  /* Filtros y stats colapsables (hamburguesa izquierda) */
+  #admin-panel-modal .adminp-card:not(.adminp-filters-visible) .adminp-filters-scroll,
+  #admin-panel-modal .adminp-card:not(.adminp-filters-visible) .adminp-stats{ display: none; }
+
+  /* Ocultar acciones inline; se usan desde el drawer */
+  #admin-panel-modal .adminp-actions-inline{ display: none !important; }
+
+  /* Drawer lateral derecho (como en la foto) */
+  .adminp-drawer{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(280px, 85vw);
+    background: #fff;
+    box-shadow: -8px 0 24px rgba(0,0,0,.2);
+    z-index: 10001;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    border-radius: 12px 0 0 12px;
+  }
+  .adminp-drawer.open{
+    transform: translateX(0);
+  }
+  .adminp-drawer-header{
+    background: #374151;
+    color: #fff;
+    padding: 14px 12px;
+    flex-shrink: 0;
+  }
+  .adminp-drawer-close-btn{
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .adminp-drawer-body{
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .adminp-drawer-item{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    background: #f3f4f6;
+    color: #111827;
+  }
+  .adminp-drawer-item-green{ background: rgba(16,185,129,.15); color: #047857; }
+  .adminp-drawer-item-blue{ background: rgba(37,99,235,.15); color: #1d4ed8; }
+  .adminp-drawer-item-red{ background: rgba(239,68,68,.12); color: #b91c1c; }
+  .adminp-drawer-item-dark{ background: #f3f4f6; color: #374151; }
+  .adminp-drawer-foot{
+    padding: 12px;
+    flex-shrink: 0;
+    border-top: 1px solid rgba(0,0,0,.08);
+  }
+  .adminp-close-drawer{
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #374151;
+    color: #fff;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* Tarjetas de pedidos (layout igual a la foto) */
+  #admin-panel-modal .adminp-tablewrap{
+    margin: 0 12px 12px;
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  #admin-panel-modal .adminp-table{
+    min-width: 0;
+    display: block;
+  }
+  #admin-panel-modal .adminp-table tbody{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #admin-panel-modal .adminp-table tbody tr.adminp-row{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 6px 12px;
+    padding: 12px 14px;
+    background: #f3f4f6;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,.06);
+    margin: 0;
+    align-items: start;
+  }
+  /* Fila 1: ID (izq) | Estado badge (der) */
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(1){
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 800;
+    font-size: 12px;
+    color: #111827;
+  }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(5){
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
+  /* Fila 2: Nombre + teléfono (izq) | Fecha (der) */
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(2){
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(3){
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+    margin-top: 2px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(6){
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+    font-size: 11px;
+    color: #6b7280;
+  }
+  /* Fila 3: Total (izq) | Acciones Ver, Estado, WhatsApp, Imprimir (der) */
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(4){
+    grid-column: 1;
+    grid-row: 3;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(7){
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  #admin-panel-modal .adminp-table tbody td::before{ content: none !important; }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell{
+    padding: 0;
+    border: 0;
+    display: block;
+  }
+  #admin-panel-modal .adminp-table tbody td.adminp-cell:nth-child(7){
+    display: flex;
+  }
+  #admin-panel-modal .adminp-actions-mini{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  #admin-panel-modal .adminp-mini{
+    padding: 6px 10px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+  #admin-panel-modal .adminp-foot .adminp-close{
+    width: 100%;
+    border-radius: 12px;
+    padding: 12px 16px;
+    background: #374151;
+    font-size: 14px;
+  }
+}
+
+/* En móvil pequeño: filtros visibles por defecto para no esconder datos */
+@media (max-width: 560px){
+  #admin-panel-modal .adminp-card.adminp-filters-visible .adminp-stats,
+  #admin-panel-modal .adminp-card.adminp-filters-visible .adminp-filters-scroll{ display: block; }
+  #admin-panel-modal .adminp-card:not(.adminp-filters-visible) .adminp-filters-scroll{ display: none; }
+  #admin-panel-modal .adminp-card:not(.adminp-filters-visible) .adminp-stats{ display: none; }
+  /* Por defecto mostrar filtros en móvil para que no se pierda funcionalidad */
+  #admin-panel-modal .adminp-card{ padding-bottom: 10px; }
+}
+
 
 
 

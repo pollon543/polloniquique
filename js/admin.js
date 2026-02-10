@@ -35,8 +35,43 @@ const clearBtn = document.getElementById('admin-clear-btn');
 
 const adminClosePanelBtn = document.getElementById('admin-close-panel');
 adminClosePanelBtn?.addEventListener('click', ()=>{
+  closeAdminDrawer();
   closeModal('#admin-panel-modal');
 });
+
+// Panel lateral (drawer) móvil/tablet: abrir/cerrar
+const adminDrawer = document.getElementById('adminp-drawer');
+const adminToggleDrawerBtn = document.getElementById('admin-toggle-drawer');
+const adminDrawerCloseBtn = document.getElementById('admin-drawer-close');
+const adminClosePanelDrawerBtn = document.getElementById('admin-close-panel-drawer');
+
+function openAdminDrawer(){
+  adminDrawer?.classList.add('open');
+  adminDrawer?.setAttribute('aria-hidden', 'false');
+}
+function closeAdminDrawer(){
+  adminDrawer?.classList.remove('open');
+  adminDrawer?.setAttribute('aria-hidden', 'true');
+}
+
+adminToggleDrawerBtn?.addEventListener('click', openAdminDrawer);
+adminDrawerCloseBtn?.addEventListener('click', closeAdminDrawer);
+
+// Hamburguesa izquierda: mostrar/ocultar filtros y chips en móvil
+document.getElementById('admin-toggle-filters')?.addEventListener('click', ()=>{
+  document.querySelector('.adminp-card')?.classList.toggle('adminp-filters-visible');
+});
+adminClosePanelDrawerBtn?.addEventListener('click', ()=>{
+  closeAdminDrawer();
+  closeModal('#admin-panel-modal');
+});
+
+// Botones del drawer: ejecutan la misma acción que los principales
+document.getElementById('admin-copy-btn-drawer')?.addEventListener('click', ()=>{ copyBtn?.click(); closeAdminDrawer(); });
+document.getElementById('admin-refresh-btn-drawer')?.addEventListener('click', ()=>{ refreshBtn?.click(); closeAdminDrawer(); });
+document.getElementById('admin-clear-btn-drawer')?.addEventListener('click', ()=>{ clearBtn?.click(); closeAdminDrawer(); });
+document.getElementById('admin-pdf-btn-drawer')?.addEventListener('click', ()=>{ pdfBtn?.click(); closeAdminDrawer(); });
+document.getElementById('enable-sound-btn-drawer')?.addEventListener('click', ()=>{ document.getElementById('enable-sound-btn')?.click(); closeAdminDrawer(); });
 
 
 function openModal(sel){ document.querySelector(sel)?.classList.add('active'); }
@@ -63,8 +98,9 @@ adminLoginBtn?.addEventListener('click', ()=>{
     return;
   }
   closeModal('#admin-login-modal');
+  closeAdminDrawer();
   openModal('#admin-panel-modal');
-  // Lista y estadísticas actuales (Firestore ya tiene los datos vía listener en app.js)
+  document.querySelector('#admin-panel-modal .adminp-card')?.classList.add('adminp-filters-visible');
   renderAdmin();
 });
 

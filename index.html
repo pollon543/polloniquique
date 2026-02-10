@@ -670,8 +670,11 @@
 <div id="admin-panel-modal" class="modal" role="dialog" aria-modal="true" aria-label="Panel Admin">
   <div class="adminp-card">
     
-    <!-- HEADER -->
+    <!-- HEADER (desktop: título + chips | móvil: hamburger + título + hamburger) -->
     <div class="adminp-head">
+      <!-- Botón hamburguesa izquierda (móvil/tablet: mostrar filtros/chips) -->
+      <button type="button" class="adminp-hamb adminp-hamb-left" id="admin-toggle-filters" aria-label="Menú filtros">☰</button>
+
       <div class="adminp-title">
         <span class="adminp-icon">📊</span>
         <div>
@@ -680,13 +683,16 @@
         </div>
       </div>
 
-      <!-- PASTILLAS ESTADO (igual foto) -->
+      <!-- PASTILLAS ESTADO (desktop; en móvil se pueden mostrar debajo del header) -->
       <div class="adminp-chips">
         <button class="adminp-chip" type="button" data-chipstatus="Pendiente">Pendiente</button>
         <button class="adminp-chip adminp-chip-blue" type="button" data-chipstatus="En preparación">En preparación</button>
         <button class="adminp-chip adminp-chip-green" type="button" data-chipstatus="Entregado">Entregado</button>
         <button class="adminp-chip adminp-chip-red" type="button" data-chipstatus="Cancelado">Cancelado</button>
       </div>
+
+      <!-- Botón hamburguesa derecha (móvil/tablet: abre panel de acciones) -->
+      <button type="button" class="adminp-hamb adminp-hamb-right" id="admin-toggle-drawer" aria-label="Abrir acciones">☰</button>
     </div>
 
     <!-- STATS (igual foto) -->
@@ -753,35 +759,35 @@
         <input id="flt-q" class="adminp-input" type="text" placeholder="Ej: Juan, +569..." />
       </div>
 
-      <!-- <div class="adminp-actionsbar">
-         <button class="adminp-hamb" type="button" id="admin-actions-toggle" aria-expanded="false" aria-controls="admin-actions-panel">
-          ☰ Acciones
-        </button>
-
-        <div class="adminp-actions" id="admin-actions-panel">
-         <button id="admin-copy-btn" class="adminp-btn adminp-btn-soft" type="button">📋 Copiar pedidos (Excel)</button>
-         <button id="admin-refresh-btn" class="adminp-btn adminp-btn-primary" type="button">🔄 Actualizar</button>
-         <button id="admin-clear-btn" class="adminp-btn adminp-btn-soft" type="button">✖ Limpiar filtros</button>
-         <button id="admin-pdf-btn" class="adminp-btn adminp-btn-soft" type="button">🧾 Exportar a PDF</button>
-        </div>
-      </div> -->
-
-
-      <div class="adminp-actions">
+      <div class="adminp-actions adminp-actions-inline">
         <button id="admin-copy-btn" class="adminp-btn adminp-btn-soft" type="button">📋 Copiar pedidos (Excel)</button>
         <button id="admin-refresh-btn" class="adminp-btn adminp-btn-primary" type="button">🔄 Actualizar</button>
         <button id="admin-clear-btn" class="adminp-btn adminp-btn-soft" type="button">✖ Limpiar filtros</button>
         <button id="admin-pdf-btn" class="adminp-btn adminp-btn-soft" type="button">🧾 Exportar a PDF</button>
-        <button id="enable-sound-btn" class="adminp-btn adminp-btn-soft" type="button">
-        🔔 Activar sonido
-        </button>
-
+        <button id="enable-sound-btn" class="adminp-btn adminp-btn-soft" type="button">🔔 Activar sonido</button>
       </div>
 
       <div class="adminp-range-note">
         <span id="admin-range-count">Pedidos en el rango seleccionado: 0</span>
       </div>
     </div>
+    </div>
+
+    <!-- Panel lateral derecho (móvil/tablet): acciones + Cerrar panel -->
+    <div id="adminp-drawer" class="adminp-drawer" aria-hidden="true">
+      <div class="adminp-drawer-header">
+        <button type="button" class="adminp-drawer-close-btn" id="admin-drawer-close" aria-label="Cerrar menú">☰</button>
+      </div>
+      <div class="adminp-drawer-body">
+        <button id="admin-copy-btn-drawer" class="adminp-drawer-item adminp-drawer-item-green" type="button">📋 Copiar pedidos (Excel)</button>
+        <button id="admin-refresh-btn-drawer" class="adminp-drawer-item adminp-drawer-item-blue" type="button">🔄 Actualizar</button>
+        <button id="admin-clear-btn-drawer" class="adminp-drawer-item adminp-drawer-item-dark" type="button">✖ Limpiar filtros</button>
+        <button id="admin-pdf-btn-drawer" class="adminp-drawer-item adminp-drawer-item-red" type="button">🧾 Exportar a PDF</button>
+        <button id="enable-sound-btn-drawer" class="adminp-drawer-item adminp-drawer-item-dark" type="button">🔔 Activar sonido</button>
+      </div>
+      <div class="adminp-drawer-foot">
+        <button id="admin-close-panel-drawer" class="adminp-close adminp-close-drawer" type="button">Cerrar panel</button>
+      </div>
     </div>
 
     <!-- TABLA -->
