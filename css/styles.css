@@ -2147,9 +2147,16 @@ h1, h2, h3, h4,
 .pheart:active{ transform: scale(.96); }
 
 .pheart-icon{
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a63d4b;
   line-height: 1;
-  color: #ff1b1b;
+}
+.pheart-icon svg{
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 /* estado "activo" (si quieres que se quede marcado) */
@@ -2165,17 +2172,24 @@ h1, h2, h3, h4,
   pointer-events:none;
 }
 
-/* cada corazoncito que sale */
+/* cada corazoncito que sale (mismo estilo outline) */
 .pheart-float{
   position:absolute;
   left:50%;
   top:50%;
   transform: translate(-50%, -50%);
-  font-size: 16px;
   line-height: 1;
-  color: #e11d48;
+  color: #a63d4b;
   opacity: 0;
   animation: heartOrbitBack 900ms ease-out forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pheart-float svg{
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 /* animación: sale, “gira” y vuelve al mismo centro */

@@ -293,10 +293,11 @@ function burstHearts(btn){
   const RADIUS = 26;
   const STEP_DELAY = 40;
 
+  const heartSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
   for(let i=0;i<COUNT;i++){
     const s = document.createElement('span');
     s.className = 'pheart-float';
-    s.textContent = '❤';
+    s.innerHTML = heartSvg;
 
     const angle = (Math.PI * 2) * (i / COUNT);
     const dx = Math.cos(angle) * RADIUS;
@@ -457,7 +458,7 @@ function productCard(p, category){
   heartBtn.setAttribute('aria-label', 'Agregar a favoritos');
   heartBtn.dataset.action = 'heart';
   heartBtn.dataset.heartId = `${category}__${p.name}`;
-  heartBtn.innerHTML = `<span class="pheart-icon">❤</span>`;
+  heartBtn.innerHTML = `<span class="pheart-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>`;
 
   const btn = document.createElement('button');
   btn.className = 'padd';
