@@ -4246,7 +4246,7 @@ h1, h2, h3, h4,
   .products-grid .pcard{ max-width: 100%; }
   .products-grid .pimg{ aspect-ratio: 4 / 3; }
   .products-grid .pbody{ padding: 10px 12px; }
-  .products-grid .ptitle{ font-size: 0.875rem; line-height: 1.25; }
+  .products-grid .ptitle{ font-size: 0.9375rem; line-height: 1.25; }
   .products-grid .pdesc{
     font-size: var(--text-xs);
     line-height: 1.4;
@@ -4259,8 +4259,8 @@ h1, h2, h3, h4,
     margin-top: 2px;
   }
   .products-grid .prow{ margin-top: 6px; gap: 6px; }
-  .products-grid .padd{ padding: 8px 10px; font-size: 12px; min-height: 38px; border-radius: 12px; }
-  .products-grid .pprice{ font-size: 0.875rem; }
+  .products-grid .padd{ padding: 9px 12px; font-size: 13px; min-height: 40px; border-radius: 12px; }
+  .products-grid .pprice{ font-size: 0.9375rem; }
   .products-grid .pheart{ width: 36px; height: 36px; }
   .products-grid .pheart-icon svg{ width: 16px; height: 16px; }
 }
@@ -4273,11 +4273,11 @@ h1, h2, h3, h4,
   .products-grid .pimg{ aspect-ratio: 4 / 3; }
   .products-grid .pcard{ border-radius: var(--card-radius-sm); }
   .products-grid .pbody{ padding: 8px 10px; }
-  .products-grid .ptitle{ font-size: 0.8125rem; }
+  .products-grid .ptitle{ font-size: 0.875rem; }
   .products-grid .pdesc{ line-height: 1.35; min-height: 0; }
   .products-grid .prow{ margin-top: 5px; gap: 5px; }
-  .products-grid .padd{ padding: 6px 10px; font-size: 11px; min-height: 36px; }
-  .products-grid .pprice{ font-size: 0.8125rem; }
+  .products-grid .padd{ padding: 8px 11px; font-size: 12px; min-height: 38px; }
+  .products-grid .pprice{ font-size: 0.875rem; }
   .products-grid .pheart{ width: 34px; height: 34px; }
   .products-grid .pheart-icon svg{ width: 14px; height: 14px; }
 }
