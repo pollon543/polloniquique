@@ -4234,15 +4234,17 @@ h1, h2, h3, h4,
   }
 }
 
-/* Productos: celular – cuadros más pequeños (imagen más baja + menos padding), 1 columna */
+/* ========== SOLO CELULAR: productos más compactos, más espacio a los lados, imágenes más pequeñas. PC no se toca. ========== */
 @media (max-width: 640px){
   .products-grid{
     grid-template-columns: 1fr;
     justify-content: stretch;
     gap: var(--card-gap-sm);
+    padding-left: 14px;
+    padding-right: 14px;
   }
   .products-grid .pcard{ max-width: 100%; }
-  .products-grid .pimg{ aspect-ratio: 16 / 10; }
+  .products-grid .pimg{ aspect-ratio: 16 / 9; }
   .products-grid .pbody{ padding: 10px 12px; }
   .products-grid .ptitle{ font-size: 0.875rem; line-height: 1.25; }
   .products-grid .pdesc{
@@ -4263,15 +4265,19 @@ h1, h2, h3, h4,
   .products-grid .pheart-icon svg{ width: 16px; height: 16px; }
 }
 @media (max-width: 480px){
-  .products-grid{ gap: 10px; }
-  .products-grid .pimg{ aspect-ratio: 3 / 2; }
-  .pcard{ border-radius: var(--card-radius-sm); }
+  .products-grid{
+    gap: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .products-grid .pimg{ aspect-ratio: 2 / 1; }
+  .products-grid .pcard{ border-radius: var(--card-radius-sm); }
   .products-grid .pbody{ padding: 8px 10px; }
-  .ptitle{ font-size: 0.8125rem; }
-  .pdesc{ line-height: 1.35; min-height: 0; }
-  .prow{ margin-top: 5px; gap: 5px; }
-  .padd{ padding: 6px 10px; font-size: 11px; min-height: 36px; }
-  .pprice{ font-size: 0.8125rem; }
+  .products-grid .ptitle{ font-size: 0.8125rem; }
+  .products-grid .pdesc{ line-height: 1.35; min-height: 0; }
+  .products-grid .prow{ margin-top: 5px; gap: 5px; }
+  .products-grid .padd{ padding: 6px 10px; font-size: 11px; min-height: 36px; }
+  .products-grid .pprice{ font-size: 0.8125rem; }
   .products-grid .pheart{ width: 34px; height: 34px; }
   .products-grid .pheart-icon svg{ width: 14px; height: 14px; }
 }
