@@ -478,69 +478,66 @@
 
   <!-- OPTIONS MODAL -->
   <div id="options-modal" class="modal" role="dialog" aria-modal="true" aria-label="Personaliza tu pedido">
-    <div class="modal-card modal-card-lg">
-      <div class="modal-head">
-        <div class="modal-title">🧩 Personaliza tu pedido</div>
-        <button class="modal-x" type="button" id="cancel-options">✕</button>
+    <div class="modal-card modal-card-lg options-card">
+      <!-- Encabezado negro tipo foto, con el nombre del producto -->
+      <div class="modal-head options-head">
+        <div id="opt-product-name" class="options-title">Producto</div>
+        <button class="modal-x options-close" type="button" id="cancel-options">✕</button>
       </div>
 
-      <div class="modal-body">
-        <div class="grid md:grid-cols-2 gap-4">
+      <div class="modal-body options-body">
+        <!-- Descripción corta bajo el título -->
+        <div id="opt-product-desc" class="options-desc">Descripción</div>
 
-          <!-- Product Info -->
-          <div class="p-3 rounded-2xl bg-gray-50 border">
-            <div id="opt-product-name" class="font-extrabold text-lg">Producto</div>
-            <div id="opt-product-desc" class="text-sm text-gray-600 mt-1">Descripción</div>
-            <div class="mt-3 flex items-center justify-between">
-              <div class="text-sm text-gray-600">Precio base</div>
-              <div id="opt-product-price" class="font-extrabold text-red-700">$0</div>
-            </div>
-
-            <!-- Quantity -->
-            <div class="mt-4">
-              <div class="text-sm font-bold text-gray-700 mb-2">Cantidad</div>
-              <div class="qty-row">
-                <button id="qty-minus" class="qty-btn" type="button">−</button>
-                <div id="qty-value" class="qty-value">1</div>
-                <button id="qty-plus" class="qty-btn" type="button">+</button>
-              </div>
-            </div>
-
-            <div class="mt-4 p-3 rounded-xl bg-white border flex items-center justify-between">
-              <div class="text-sm text-gray-600">Total en vivo</div>
-              <div id="live-total" class="text-xl font-extrabold text-gray-900">$0</div>
-            </div>
+        <!-- Fila: Precio base (izquierda) + Cantidad (derecha) -->
+        <div class="options-row-top">
+          <div class="options-price-box">
+            <div class="options-label">Precio base</div>
+            <div id="opt-product-price" class="options-price">$0</div>
           </div>
 
-          <!-- Options -->
-          <div class="space-y-4">
-
-            <!-- Drinks -->
-            <div id="drink-section" class="opt-block hidden">
-              <div class="opt-title">🥤 Elija su sabor de bebida</div>
-              <div class="opt-grid">
-                <label class="opt-radio"><input type="radio" name="drink" value="Coca Cola 1.5L" /> Coca Cola</label>
-                <label class="opt-radio"><input type="radio" name="drink" value="Inca Kola 1.5L" /> Inca Kola</label>
-                <label class="opt-radio"><input type="radio" name="drink" value="Coca Cero 1.5L" /> Coca Cero</label>
-                <label class="opt-radio"><input type="radio" name="drink" value="Sprite 1.5L" /> Sprite</label>
-                <label class="opt-radio"><input type="radio" name="drink" value="Fanta 1.5L" /> Fanta</label>
-              </div>
-            </div>
-
-            <!-- Bag -->
-            <div id="bag-section" class="opt-block">
-              <div class="opt-title">🛍️ Bolsa ecológica <span class="text-sm font-normal text-gray-600">(Precio: $200)</span></div>
-              <div id="bag-options" class="opt-grid"></div>
-              <div id="bag-note" class="text-xs text-gray-500 mt-2"></div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex gap-2 justify-end pt-2">
-              <button class="btn-secondary" type="button" id="cancel-options-2">Cancelar</button>
-              <button class="btn-primary" type="button" id="confirm-add">Agregar al carrito</button>
+          <div class="options-qty-box">
+            <div class="options-label options-label-right">Cantidad</div>
+            <div class="qty-row">
+              <button id="qty-minus" class="qty-btn" type="button">−</button>
+              <div id="qty-value" class="qty-value">1</div>
+              <button id="qty-plus" class="qty-btn" type="button">+</button>
             </div>
           </div>
+        </div>
 
+        <!-- Total en vivo en caja gris clara -->
+        <div class="options-total-box">
+          <button type="button" class="options-total-label" disabled>Total en vivo</button>
+          <div id="live-total" class="options-total-value">$0</div>
+        </div>
+
+        <!-- Bloque bebidas -->
+        <div id="drink-section" class="opt-block hidden">
+          <div class="opt-title text-center">Elija su sabor de Bebida</div>
+          <div class="opt-grid">
+            <label class="opt-radio"><input type="radio" name="drink" value="Coca Cola 1.5L" /> Coca cola</label>
+            <label class="opt-radio"><input type="radio" name="drink" value="Inca Kola 1.5L" /> Inca kola</label>
+            <label class="opt-radio"><input type="radio" name="drink" value="Coca Cero 1.5L" /> Coca cero</label>
+            <label class="opt-radio"><input type="radio" name="drink" value="Sprite 1.5L" /> Sprite</label>
+            <label class="opt-radio"><input type="radio" name="drink" value="Fanta 1.5L" /> Fanta</label>
+          </div>
+        </div>
+
+        <!-- Bloque bolsa -->
+        <div id="bag-section" class="opt-block">
+          <div class="opt-title">
+            Bolsa ecológica
+            <span class="options-bag-price">(Precio: $200)</span>
+          </div>
+          <div id="bag-options" class="opt-grid"></div>
+          <div id="bag-note" class="options-bag-note"></div>
+        </div>
+
+        <!-- Acciones abajo: Cancelar / Agregar -->
+        <div class="options-actions">
+          <button class="btn-secondary" type="button" id="cancel-options-2">Cancelar</button>
+          <button class="btn-primary" type="button" id="confirm-add">Agregar a carrito</button>
         </div>
       </div>
     </div>

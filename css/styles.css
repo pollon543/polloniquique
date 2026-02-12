@@ -2795,58 +2795,156 @@ h1, h2, h3, h4,
   width: min(94vw, 760px);
   max-height: min(88vh, 720px);
   background: #fff;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;            /* evita que crezca */
   display: flex;
   flex-direction: column;
+  box-shadow: 0 22px 60px rgba(0,0,0,.35);
 }
 
-/* Header */
+/* Header tipo barra negra como la foto */
 #options-modal .modal-head{
   flex: 0 0 auto;
-  padding: 12px 14px;
+  padding: 10px 16px;
+  background: #111827;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#options-modal .options-title{
+  flex: 1;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#options-modal .options-close{
+  background: transparent;
+  border-radius: 999px;
+  border: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+#options-modal .options-close:hover{
+  background: rgba(255,255,255,.12);
 }
 
 /* Body: que no estire el modal */
 #options-modal .modal-body{
   flex: 1 1 auto;
-  padding: 12px 14px;
+  padding: 12px 16px 14px;
   overflow: auto;              /* si es muy largo, scrollea aquí */
+  background: #f3f4f6;
 }
 
-/* Grid principal (2 columnas en desktop, 1 en móvil) */
-#options-modal .modal-body .grid{
-  align-items: start;
-  gap: 12px;
-}
-
-/* Bloque info producto: más compacto */
+/* Texto de descripción debajo del título */
 #options-modal #opt-product-name{
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: 0.95rem;
 }
 #options-modal #opt-product-desc{
-  font-size: .82rem;
-  line-height: 1.25;
+  font-size: .8rem;
+  line-height: 1.3;
+  color: #4b5563;
+  margin-bottom: 8px;
 }
 
-/* Cantidad: más delgado */
-#options-modal .qty-row{
+/* Fila superior: Precio base (izq) + Cantidad (der) */
+#options-modal .options-row-top{
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 10px;
+  margin-bottom: 10px;
 }
+
+#options-modal .options-price-box,
+#options-modal .options-qty-box{
+  flex: 1;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,.06);
+}
+
+#options-modal .options-label{
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+#options-modal .options-label-right{
+  text-align: right;
+}
+
+#options-modal .options-price{
+  font-weight: 800;
+  font-size: 1rem;
+  color: #b91c1c;
+}
+
+/* Cantidad: botones compactos, alineados a la derecha como en la foto */
+#options-modal .qty-row{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 #options-modal .qty-btn{
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   font-weight: 900;
   line-height: 1;
 }
+
 #options-modal .qty-value{
-  min-width: 36px;
+  min-width: 32px;
   text-align: center;
   font-weight: 800;
+}
+
+/* Total en vivo: caja gris tipo botón + monto grande */
+#options-modal .options-total-box{
+  margin-bottom: 10px;
+  margin-top: 2px;
+  background: #e5e7eb;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(0,0,0,.08);
+}
+
+#options-modal .options-total-label{
+  border-radius: 999px;
+  border: 0;
+  background: #d1d5db;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #374151;
+  cursor: default;
+}
+
+#options-modal .options-total-value{
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #111827;
 }
 
 /* TITULOS de secciones */
@@ -2910,6 +3008,19 @@ h1, h2, h3, h4,
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+#options-modal .options-bag-price{
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+#options-modal .options-bag-note{
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: #16a34a; /* verde como en la foto */
+}
+
 /* Acciones: botones bien visibles y alineados */
 #options-modal .modal-body .flex.gap-2.justify-end{
   position: sticky;             /* siempre visible si hay scroll */
@@ -2918,6 +3029,13 @@ h1, h2, h3, h4,
   padding-top: 10px;
   margin-top: 10px;
   z-index: 2;
+}
+
+#options-modal .options-actions{
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 #options-modal .btn-secondary,
