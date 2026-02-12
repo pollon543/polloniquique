@@ -2781,6 +2781,8 @@ h1, h2, h3, h4,
   z-index: 9999;
 }
 
+
+
 /* si tu JS usa otra clase, agrega aquí tu selector */
 #options-modal.modal.open,
 #options-modal.modal.show,
