@@ -20,6 +20,14 @@
   --leading-relaxed: 1.6;
   --color-text: #111827;
   --color-text-muted: #4b5563;
+  /* Tarjetas: diseño unificado profesional */
+  --card-radius: 16px;
+  --card-radius-sm: 12px;
+  --card-shadow: 0 2px 12px rgba(0,0,0,.06);
+  --card-shadow-hover: 0 12px 32px rgba(0,0,0,.1);
+  --card-border: 1px solid rgba(0,0,0,.06);
+  --card-gap: 16px;
+  --card-gap-sm: 12px;
 }
 @media (min-width: 640px){
   :root{ --content-pad: 20px; }
@@ -503,50 +511,50 @@ main#ofertas > section{
   font-weight: 900;
 }
 
-/* ========== PRODUCTS GRID: adaptable PC / tablet / celular, mismos tamaños ========== */
+/* ========== PRODUCTS GRID: alineación perfecta, diseño pro, 100% responsive ========== */
 .products-grid{
   display: grid;
-  gap: 16px;
+  gap: var(--card-gap);
   justify-items: stretch;
   align-items: start;
   width: 100%;
   max-width: 100%;
-  /* PC/tablet: columnas con tamaño máximo para que no se vean gigantes */
-  grid-template-columns: repeat(auto-fill, minmax(200px, 260px));
-  justify-content: center;
+  min-width: 0;
+  /* Columnas iguales que llenan el ancho; cantos alineados en la misma recta */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
 }
 
-/* Tarjeta: mismo comportamiento en todas las pantallas */
+/* Tarjeta de producto: estilo profesional unificado */
 .pcard{
   background: #fff;
-  border-radius: 18px;
+  border-radius: var(--card-radius);
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 12px 40px rgba(0,0,0,.08);
-  transition: transform .15s ease, box-shadow .15s ease;
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   display: flex;
   flex-direction: column;
   width: 100%;
   min-width: 0;
-  max-width: 260px;
-  margin: 0 auto;
+  max-width: 100%;
 }
 .pcard:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 20px 50px rgba(0,0,0,.12);
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(0,0,0,.08);
 }
-/* Imagen autoajustable: proporción fija 4/3 en todas las pantallas */
+/* Imagen: proporción 4/3 en todas las pantallas */
 .pimg{
   width: 100%;
   aspect-ratio: 4 / 3;
   height: auto;
   min-height: 0;
-  background: linear-gradient(135deg, #111, #333);
+  background: linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 40px;
+  color: rgba(255,255,255,.4);
+  font-size: 2.5rem;
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -558,7 +566,7 @@ main#ofertas > section{
   display: block;
 }
 .pbody{
-  padding: 12px 14px;
+  padding: 14px 16px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -678,16 +686,16 @@ main#ofertas > section{
   will-change: transform, width;
 }
 
-/* Carril: scroll horizontal, arrastre con mouse o dedo desde imagen/cualquier parte */
+/* Carril: scroll horizontal; padding lateral 0 para que los cantos alineen con el contenido */
 .cat-track{
   display: grid;
   grid-auto-flow: column;
-  gap: 14px;
+  gap: var(--card-gap);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding: 8px 0;           /* un poco más compacto como la imagen */
+  padding: 10px 0;
   width: 100%;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
@@ -714,21 +722,26 @@ main#ofertas > section{
 .cat-card{
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  background: #fdfdfd;
-  border-radius: 14px;
+  background: #fff;
+  border-radius: var(--card-radius);
   padding: 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
   width: 100%;
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
-  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: var(--card-shadow);
+  border: var(--card-border);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.cat-card:hover{
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(0,0,0,.08);
 }
 
 .cat-card__img{
   width: 100%;
-  border-radius: 14px 14px 0 0;
-  background: #fff;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+  background: linear-gradient(145deg, #f5f5f5, #eee);
   overflow: hidden;
   aspect-ratio: 1 / 1;
   border: none;
@@ -751,10 +764,10 @@ main#ofertas > section{
 /* Botón de categoría bajo la imagen – nombre de categoría */
 .cat-card__btn{
   width: 100%;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 0 0 14px 14px;
-  border-top: none;
-  padding: 12px 10px;
+  border: none;
+  border-top: var(--card-border);
+  border-radius: 0 0 var(--card-radius) var(--card-radius);
+  padding: 14px 12px;
   background: #fff;
   color: var(--color-text);
   font-family: var(--font-main);
@@ -798,17 +811,20 @@ main#ofertas > section{
 }
 
 
-/* Móvil: tarjetas con ancho fijo para scroll táctil suave (deslizar con el dedo) */
+/* Móvil: tarjetas categorías con ancho fijo para scroll táctil; cantos alineados */
 @media (max-width: 639px){
   .cat-track{
-    grid-auto-columns: 148px;
-    gap: 12px;
-    padding: 10px 12px;
+    grid-auto-columns: 140px;
+    gap: var(--card-gap-sm);
+    padding: 10px 0;
   }
   .cat-card{
-    width: 148px;
-    min-width: 148px;
+    width: 140px;
+    min-width: 140px;
+    border-radius: var(--card-radius-sm);
   }
+  .cat-card__img{ border-radius: var(--card-radius-sm) var(--card-radius-sm) 0 0; }
+  .cat-card__btn{ border-radius: 0 0 var(--card-radius-sm) var(--card-radius-sm); padding: 12px 10px; }
 }
 
 /* Tablet: 4 columnas visibles, centradas */
@@ -1074,7 +1090,7 @@ main#ofertas > section{
 @media (max-width: 900px){
   .pollon-combos{
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--card-gap);
   }
   .pollon-combos .combo-card{
     grid-template-columns: minmax(140px, 200px) 1fr;
@@ -1108,14 +1124,14 @@ main#ofertas > section{
 /* Combos cards */
 
 
-/* Combos: grid adaptable, imágenes autoajustables */
+/* Combos: grid adaptable, mismo lenguaje visual que productos/categorías */
 .pollon-combos{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
-  gap: 20px;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: var(--card-gap);
   width: 100%;
   max-width: 100%;
+  min-width: 0;
 }
 
 /* Tablet y PC (641px+): 2 columnas, TODOS los cuadros misma altura y mismo ancho */
@@ -1123,7 +1139,7 @@ main#ofertas > section{
   .pollon-combos{
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 300px;
-    gap: 24px;
+    gap: var(--card-gap);
     align-items: stretch;
     justify-items: stretch;
     max-width: 100%;
@@ -1167,15 +1183,20 @@ main#ofertas > section{
   grid-template-columns: 1fr 1fr;
   gap: 0;
   background: #fff;
-  border-radius: 18px;
+  border-radius: var(--card-radius);
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 12px 40px rgba(0,0,0,.08);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
   min-width: 0;
   max-width: 100%;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.combo-card:hover{
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(0,0,0,.08);
 }
 .combo-media{
-  background: #721616;
+  background: linear-gradient(145deg, #5c1212, #721616);
   aspect-ratio: 4 / 3;
   min-height: 0;
   overflow: hidden;
@@ -1188,7 +1209,7 @@ main#ofertas > section{
   display: block;
 }
 .combo-body{
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1302,38 +1323,59 @@ main#ofertas > section{
 
 
 
-/* Location Pro */
+/* Location Pro: mapa protagonista + cabecera sutil con dirección */
 .location-pro{
-  background: #f3f4f6;
-  border-radius: 24px;
-  padding: 16px;
-  border: 1px solid rgba(0,0,0,.06);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
-.location-head{ margin-bottom: 12px; }
 .location-card{
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 16px;
-  background: linear-gradient(135deg, rgba(140,0,0,1), rgba(255,45,45,1));
-  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.06);
   width: 100%;
   min-width: 0;
 }
+/* Cabecera pequeña: solo la dirección */
+.location-address{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: .03em;
+}
+.location-address-icon{
+  font-size: 1rem;
+  opacity: .9;
+}
+.location-address-text{
+  color: var(--color-text);
+  font-weight: 600;
+}
+/* Mapa ocupa la mayor parte del espacio */
 .location-map{
+  flex: 1;
+  min-height: 320px;
   min-width: 0;
 }
 .location-map iframe{
   width: 100%;
-  height: clamp(240px, 40vh, 320px);
+  height: clamp(320px, 55vh, 480px);
   border: 0;
   display: block;
 }
-.location-info{ padding: 16px 20px; color: #fff; min-width: 0; }
+/* Mantener estilos .loc-* por si se usan en otros sitios */
 .loc-name{
   font-family: var(--font-main);
   font-weight: 800;
@@ -1342,7 +1384,7 @@ main#ofertas > section{
   line-height: 1.25;
 }
 .loc-line{ margin-top: 8px; display:flex; gap:10px; align-items:flex-start; }
-.loc-link{ color:#fff; font-weight: 1000; text-decoration: underline; }
+.loc-link{ color:#fff; font-weight: 700; text-decoration: underline; }
 .loc-tags{ margin-top: 12px; display:flex; flex-wrap: wrap; gap:8px; }
 .tag{
   background: rgba(255,255,255,.14);
@@ -1487,17 +1529,15 @@ main#ofertas > section{
 
 /* Responsive: location, admin (combos ya tienen su media arriba) */
 @media (max-width: 980px){
-  .location-card{ grid-template-columns: 1fr; }
-  .location-map iframe{ height: clamp(240px, 45vh, 320px); }
+  .location-map iframe{ height: clamp(280px, 50vh, 420px); }
   .admin-stats{ grid-template-columns: repeat(2, minmax(0,1fr)); }
   .admin-filters{ grid-template-columns: 1fr 1fr; }
 }
-/* Combos en celular: 1 por fila, mismo tamaño, bien alineados */
+/* Combos en celular: 1 por fila, cantos alineados con el contenido */
 @media (max-width: 640px){
   .pollon-combos{
     grid-template-columns: 1fr;
-    gap: 18px;
-    padding: 0 12px;
+    gap: var(--card-gap);
     justify-items: stretch;
     align-items: stretch;
   }
@@ -1920,18 +1960,18 @@ h1, h2, h3, h4,
 
 
 
-/* ===== TOP PILL BUTTONS (SIEMPRE 1 LÍNEA) ===== */
+/* ===== TOP PILL BUTTONS: tarjetitas superiores (Top vendidos / Favoritos) ===== */
 .topbar-wrap{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:14px;
-  padding: 4px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--card-gap);
+  padding: 8px 0;
   margin-top: 4px;
-
-  /* clave para que NO salte a otra línea */
   flex-wrap: nowrap;
   white-space: nowrap;
+  width: 100%;
+  max-width: 100%;
 }
 
 .top-pill{
@@ -1939,30 +1979,25 @@ h1, h2, h3, h4,
   align-items: center;
   justify-content: center;
   gap: 10px;
-
   min-width: 0;
   flex: 1 1 0;
   max-width: 360px;
-
-  padding: 10px 20px;
-  border-radius: 999px;
-  background: #f3f4f6;
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
-
+  padding: 12px 20px;
+  border-radius: var(--card-radius);
+  background: #fff;
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
   font-weight: 800;
-  color: #111;
+  color: var(--color-text);
   text-decoration: none;
-
   overflow: hidden;
-
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
-
 .top-pill:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 18px 44px rgba(0,0,0,.12);
-  background:#ffffff;
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(0,0,0,.08);
+  background: #fff;
 }
 .top-pill:active{ transform: scale(.99); }
 
@@ -4175,31 +4210,23 @@ h1, h2, h3, h4,
   }
 }
 
-/* Productos: tablet (columnas automáticas, mismo minmax mantiene tamaños) */
+/* Productos: tablet – 2–3 columnas iguales, alineación perfecta */
 @media (min-width: 641px) and (max-width: 900px){
   .products-grid{
-    grid-template-columns: repeat(auto-fill, minmax(200px, 260px));
-    justify-content: center;
-    gap: 16px;
-  }
-  .products-grid .pcard{
-    max-width: 260px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+    gap: var(--card-gap);
   }
 }
 
-/* Productos: celular – una columna, ancho completo, mismo aspecto de imagen */
+/* Productos: celular – una columna, ancho completo, cantos alineados con el contenido */
 @media (max-width: 640px){
   .products-grid{
     grid-template-columns: 1fr;
     justify-content: stretch;
-    gap: 14px;
-    padding: 0 12px;
+    gap: var(--card-gap);
   }
-  .products-grid .pcard{
-    max-width: 100%;
-    margin: 0;
-  }
-  .products-grid .pbody{ padding: 10px 12px; }
+  .products-grid .pcard{ max-width: 100%; }
+  .products-grid .pbody{ padding: 12px 14px; }
   .products-grid .ptitle{ font-size: 0.9375rem; }
   .products-grid .pdesc{
     font-size: var(--text-sm);
@@ -4216,12 +4243,9 @@ h1, h2, h3, h4,
   .products-grid .pprice{ font-size: 0.9375rem; }
 }
 @media (max-width: 480px){
-  .products-grid{
-    gap: 12px;
-    padding: 0 10px;
-  }
-  .pcard{ border-radius: 14px; }
-  .pbody{ padding: 8px 10px; }
+  .products-grid{ gap: var(--card-gap-sm); }
+  .pcard{ border-radius: var(--card-radius-sm); }
+  .pbody{ padding: 10px 12px; }
   .ptitle{ font-size: 0.875rem; }
   .pdesc{ line-height: 1.45; min-height: 0; }
   .prow{ margin-top: 6px; gap: 6px; }
@@ -4231,9 +4255,8 @@ h1, h2, h3, h4,
 
 /* Location: móvil apilado, iframe autoajustable */
 @media (max-width: 640px){
-  .location-card{ grid-template-columns: 1fr; }
-  .location-map iframe{ height: clamp(220px, 45vw, 280px); }
-  .location-info{ padding: 14px 16px; }
+  .location-map iframe{ height: clamp(260px, 55vw, 360px); }
+  .location-address{ padding: 10px 14px; font-size: 13px; }
 }
 
 /* Chatbot en móvil */
