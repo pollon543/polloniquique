@@ -4234,39 +4234,46 @@ h1, h2, h3, h4,
   }
 }
 
-/* Productos: celular – una columna, ancho completo, cantos alineados con el contenido */
+/* Productos: celular – cuadros más pequeños (imagen más baja + menos padding), 1 columna */
 @media (max-width: 640px){
   .products-grid{
     grid-template-columns: 1fr;
     justify-content: stretch;
-    gap: var(--card-gap);
+    gap: var(--card-gap-sm);
   }
   .products-grid .pcard{ max-width: 100%; }
-  .products-grid .pbody{ padding: 12px 14px; }
-  .products-grid .ptitle{ font-size: 0.9375rem; }
+  .products-grid .pimg{ aspect-ratio: 16 / 10; }
+  .products-grid .pbody{ padding: 10px 12px; }
+  .products-grid .ptitle{ font-size: 0.875rem; line-height: 1.25; }
   .products-grid .pdesc{
-    font-size: var(--text-sm);
-    line-height: 1.45;
+    font-size: var(--text-xs);
+    line-height: 1.4;
     min-height: 0;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    margin-top: 2px;
   }
-  .products-grid .prow{ margin-top: 8px; gap: 8px; }
-  .products-grid .padd{ padding: 8px 12px; font-size: 12px; min-height: 40px; }
-  .products-grid .pprice{ font-size: 0.9375rem; }
+  .products-grid .prow{ margin-top: 6px; gap: 6px; }
+  .products-grid .padd{ padding: 8px 10px; font-size: 12px; min-height: 38px; border-radius: 12px; }
+  .products-grid .pprice{ font-size: 0.875rem; }
+  .products-grid .pheart{ width: 36px; height: 36px; }
+  .products-grid .pheart-icon svg{ width: 16px; height: 16px; }
 }
 @media (max-width: 480px){
-  .products-grid{ gap: var(--card-gap-sm); }
+  .products-grid{ gap: 10px; }
+  .products-grid .pimg{ aspect-ratio: 3 / 2; }
   .pcard{ border-radius: var(--card-radius-sm); }
-  .pbody{ padding: 10px 12px; }
-  .ptitle{ font-size: 0.875rem; }
-  .pdesc{ line-height: 1.45; min-height: 0; }
-  .prow{ margin-top: 6px; gap: 6px; }
-  .padd{ padding: 8px 10px; font-size: 12px; min-height: 38px; }
-  .pprice{ font-size: 0.875rem; }
+  .products-grid .pbody{ padding: 8px 10px; }
+  .ptitle{ font-size: 0.8125rem; }
+  .pdesc{ line-height: 1.35; min-height: 0; }
+  .prow{ margin-top: 5px; gap: 5px; }
+  .padd{ padding: 6px 10px; font-size: 11px; min-height: 36px; }
+  .pprice{ font-size: 0.8125rem; }
+  .products-grid .pheart{ width: 34px; height: 34px; }
+  .products-grid .pheart-icon svg{ width: 14px; height: 14px; }
 }
 
 /* Location: móvil apilado, iframe autoajustable */
