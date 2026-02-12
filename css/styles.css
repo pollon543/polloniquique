@@ -672,7 +672,7 @@ main#ofertas > section{
   height: 7px;
   width: 100%;
   max-width: 100%;
-  background: #374151;
+  background: #bdb8b8;
   border-radius: 999px;
   margin-top: 6px;
   margin-bottom: 0;
@@ -681,11 +681,11 @@ main#ofertas > section{
 .cat-scrollbar__thumb{
   height: 100%;
   width: 40px;
-  background: #111827;
+  background: #221a1abe;
   border-radius: 999px;
   transform: translateX(0);
   will-change: transform, width;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.06);
+  box-shadow: 0 0 0 1px rgb(56, 1, 1);
 }
 
 /* Carril: scroll horizontal; padding lateral 0 para que los cantos alineen con el contenido */
