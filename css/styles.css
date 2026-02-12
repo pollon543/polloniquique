@@ -1466,8 +1466,74 @@ main#ofertas > section{
 
 
 
- /*===== NUEVAS MODEFICACIONES ===== */
+ /* =====================================
+   TIPOGRAFÍA GLOBAL PROFESIONAL
+   ===================================== */
 
+/* Texto base más legible en todo el sitio */
+body{
+  font-size: 15px;
+  line-height: 1.6;
+  color:#111827;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Párrafos y descripciones: tamaño uniforme y profesional */
+p,
+.pdesc,
+.combo-text,
+.location-info,
+.loc-line,
+.pollon-footer__note,
+.pollon-footer__link,
+.form-label,
+.hint-25{
+  font-size: 14px;
+  line-height: 1.6;
+  color:#1f2933;
+}
+
+/* Párrafos justificados donde se lee texto largo */
+p,
+.pdesc,
+.combo-text,
+.location-info,
+.loc-line,
+.pollon-footer__note{
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Títulos y encabezados con jerarquía clara */
+h1,
+h2,
+h3,
+h4,
+.category-title,
+.loc-name,
+.combo-title,
+.ptitle,
+.pollon-footer__title,
+.adminp-title-main,
+.modal-title{
+  font-weight: 900;
+  letter-spacing: .02em;
+  line-height: 1.25;
+  color:#111827;
+}
+
+/* Textos pequeños de apoyo */
+.badge,
+.tag,
+.pay-pill,
+.adminp-muted,
+.pollon-footer__find{
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+ /*===== NUEVAS MODIFICACIONES ===== */
 
 
 /* ✅ Ocultar slider cuando se elige categoría desde el menú */
