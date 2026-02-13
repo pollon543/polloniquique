@@ -301,8 +301,8 @@ function printTicket80mm(order){
           .paper{
             width: 80mm;
             font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-            font-size: 12px;
-            line-height: 1.25;
+            font-size: 14px;
+            line-height: 1.3;
             white-space: pre-wrap;
           }
           b{ font-weight: 900; }

@@ -646,7 +646,7 @@ function buildTicketText80mm(order){
   t += `Pedido : ${pedido}     ${date}  ${time}\n`;
   t += `${sep}\n\n`;
 
-  t += `Cliente\n   : ${cliente[0] || ''}\n`;
+  t += `Cliente   : ${cliente[0] || ''}\n`;
   for(let i=1;i<cliente.length;i++) t += `           ${cliente[i]}\n`;
 
   t += `Fono      : ${fono}\n`;
