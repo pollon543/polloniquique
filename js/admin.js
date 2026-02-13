@@ -291,8 +291,8 @@ function printTicket80mm(order){
 
   const width = 380;
   const height = 560;
-  const left = Math.max(0, Math.round((window.screen.width - width) / 2));
-  const top = Math.max(0, Math.round((window.screen.height - height) / 2));
+  const left = 0;
+  const top = 0;
   const features = `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no`;
   const w = window.open('', 'pollonTicketPrint', features);
   if (!w) return;
