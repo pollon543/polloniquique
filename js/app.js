@@ -684,7 +684,7 @@ function buildTicketText80mm(order){
 
     const sub = moneyTicket(it.subtotal || 0);
     t += `   Subtotal: ${sub}\n`;
-    t += `${sep2}\n`;
+    if (idx < order.items.length - 1) t += `${sep2}\n`;
   });
 
   t += `\n${sep}\n`;
