@@ -316,7 +316,10 @@ function printTicket80mm(order){
       </head>
       <body>
         <pre class="paper">${ticketHtml}</pre>
-        <script>window.print();</script>
+        <script>
+          window.onafterprint = function(){ window.close(); };
+          window.print();
+        </script>
       </body>
     </html>
   `);
