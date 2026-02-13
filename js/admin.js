@@ -289,7 +289,13 @@ function printTicket80mm(order){
   const ticketHtml = window.__POLLON__?.buildTicketHtml80mm?.(order) ?? '';
   if (!ticketHtml) return;
 
-  const w = window.open('', '_blank');
+  const width = 380;
+  const height = 560;
+  const left = Math.max(0, Math.round((window.screen.width - width) / 2));
+  const top = Math.max(0, Math.round((window.screen.height - height) / 2));
+  const features = `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes,toolbar=no,menubar=no`;
+  const w = window.open('', 'pollonTicketPrint', features);
+  if (!w) return;
   w.document.write(`
     <html>
       <head>
