@@ -65,13 +65,13 @@ function nextTicketNumber(){
 function initOrdersBackend(){
   try{
    const firebaseConfig = {
-    apiKey: "xxxAIzaSyAWv3zPEUU82YcLSwOxsv-MQZP2ZjcycOg",
-    authDomain: "xxxelpollon01-307da.firebaseapp.com",
-    databaseURL: "111https://elpollon01-307da-default-rtdb.firebaseio.com",
-    projectId: "111elpollon01-307da",
-    storageBucket: "xxxelpollon01-307da.firebasestorage.app",
-    messagingSenderId: "xxx1024156951564",
-    appId: "xxx1:1024156951564:web:946a9b6003d8dff1053a29"
+    apiKey: "AIzaSyAWv3zPEUU82YcLSwOxsv-MQZP2ZjcycOg",
+    authDomain: "elpollon01-307da.firebaseapp.com",
+    databaseURL: "https://elpollon01-307da-default-rtdb.firebaseio.com",
+    projectId: "elpollon01-307da",
+    storageBucket: "elpollon01-307da.firebasestorage.app",
+    messagingSenderId: "1024156951564",
+    appId: "1:1024156951564:web:946a9b6003d8dff1053a29"
   };
 
     const looksPlaceholder = Object.values(firebaseConfig).some(v => String(v).includes("REEMPLAZA"));
