@@ -1,0 +1,97 @@
+/* Overrides de marca UI/UX: madera, naranja, rojo institucional - sin romper legacy */
+:root {
+  --pollon-red-deep: #6b1410;
+  --pollon-red-main: #b91c1c;
+  --pollon-orange: #ea580c;
+  --pollon-orange-soft: #fb923c;
+  --pollon-warm-white: #fffaf5;
+  --pollon-wood: #3d2914;
+  --pollon-wood-mid: #6b4423;
+  --pollon-black: #0c0c0f;
+}
+
+#root {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% -10%, rgba(234, 88, 12, 0.08), transparent 42%),
+    radial-gradient(circle at 90% 0%, rgba(185, 28, 28, 0.1), transparent 45%);
+}
+
+/* Legacy esperaba header hijo directo de body — en React está dentro de #root */
+#root header.sticky,
+#root header.header-gradient {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
+  min-height: var(--header-height, 76px);
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.24);
+}
+
+.header-gradient {
+  background: linear-gradient(
+    132deg,
+    var(--pollon-red-deep) 0%,
+    var(--pollon-red-main) 42%,
+    color-mix(in srgb, var(--pollon-orange-soft) 45%, var(--pollon-red-main)) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pedido-link:active {
+  transform: translateY(1px);
+}
+
+/* Tarjetas de producto: relieve y madera sutil */
+.pcard {
+  background: linear-gradient(180deg, #ffffff 0%, var(--pollon-warm-white) 100%);
+  border: 1px solid rgba(61, 41, 20, 0.12);
+}
+
+.pheart.is-on .pheart-icon {
+  color: var(--pollon-red-main);
+}
+
+.pimg-fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.75rem;
+  background: linear-gradient(145deg, rgba(253, 186, 116, 0.25), rgba(248, 250, 252, 1));
+}
+
+.padd {
+  background: linear-gradient(180deg, var(--pollon-orange) 0%, #c2410c 100%);
+  box-shadow: 0 10px 24px rgba(234, 88, 12, 0.35);
+}
+
+.combo-card {
+  border: 1px solid rgba(61, 41, 20, 0.1);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--pollon-orange) 0%, #c2410c 100%);
+}
+
+.main-pad-fix {
+  padding-top: calc(var(--section-gap, 24px) + env(safe-area-inset-top));
+}
+
+.hero .aviso {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(61, 41, 20, 0.85);
+}
+
+.pollon-footer {
+  border-top: 4px solid var(--pollon-wood-mid);
+}
+
+.cart-line-pro {
+  border-color: rgba(61, 41, 20, 0.12);
+}
