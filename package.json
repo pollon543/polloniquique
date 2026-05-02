@@ -1,15 +1,18 @@
 {
+  "homepage": "https://pollon543.github.io/polloniquique",
+
+  
   "name": "polloniquique-react",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:pages": "vite build --base=/polloniquique/",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+ "scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist"
+},
   "dependencies": {
     "firebase": "^12.12.1",
     "react": "^19.2.5",
